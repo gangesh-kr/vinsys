@@ -9,8 +9,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Leadership() {
   const sectionRef = useRef(null);
   const triggerRef = useRef(null);
-  const bentoRef   = useRef(null);
-  
+  const bentoRef = useRef(null);
+
   const leaders = [
     {
       id: 0,
@@ -46,7 +46,7 @@ export default function Leadership() {
   useEffect(() => {
     const trigger = triggerRef.current;
     const section = sectionRef.current;
-    const bento   = bentoRef.current;
+    const bento = bentoRef.current;
     if (!trigger || !section || !bento) return;
 
     const cards = bento.querySelectorAll('.bento-card');
@@ -108,7 +108,7 @@ export default function Leadership() {
         <div className="glow-bg glow-purple" style={{ width: '500px', height: '500px', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.03 }} />
 
         <div className="container" style={{ position: 'relative', zIndex: 3, width: '100%' }}>
-          
+
           {/* Header */}
           <div style={{ marginBottom: '4.5rem', textAlign: 'center' }}>
             <span className="section-tag" style={{ color: 'var(--brand-crimson)' }}>Governance & Vision</span>
@@ -125,14 +125,14 @@ export default function Leadership() {
           </div>
 
           {/* Interactive Pinned Bento Layout */}
-          <div 
+          <div
             ref={bentoRef}
-            style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '1fr 1.2fr', 
-              gap: '3rem', 
-              alignItems: 'center', 
-              maxWidth: '1200px', 
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1.2fr',
+              gap: '3rem',
+              alignItems: 'center',
+              maxWidth: '1200px',
               margin: '0 auto',
               position: 'relative',
               height: '500px'
@@ -202,21 +202,21 @@ export default function Leadership() {
 
                     {/* Core details */}
                     <div>
-                      <h3 
-                        style={{ 
-                          fontSize: '1.8rem', 
-                          fontWeight: 800, 
-                          color: 'var(--text-primary)', 
+                      <h3
+                        style={{
+                          fontSize: '1.8rem',
+                          fontWeight: 800,
+                          color: 'var(--text-primary)',
                           marginBottom: '0.4rem',
                           fontFamily: 'var(--font-heading)'
                         }}
                       >
                         {leader.name}
                       </h3>
-                      <span 
-                        style={{ 
-                          fontSize: '0.90rem', 
-                          fontWeight: 650, 
+                      <span
+                        style={{
+                          fontSize: '0.90rem',
+                          fontWeight: 650,
                           color: 'var(--brand-orange)',
                           textTransform: 'uppercase',
                           letterSpacing: '0.12em',
@@ -245,12 +245,12 @@ export default function Leadership() {
             </div>
 
             {/* 2. Right Side: Interactive Quote Showcase */}
-            <div 
-              style={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center', 
+            <div
+              style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
                 paddingLeft: '2rem',
                 position: 'relative'
               }}
@@ -308,12 +308,12 @@ export default function Leadership() {
               </div>
 
               {/* Dynamic scroll indicator dots */}
-              <div 
-                style={{ 
-                  display: 'flex', 
-                  gap: '0.8rem', 
-                  alignItems: 'center', 
-                  marginTop: '3.5rem' 
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.8rem',
+                  alignItems: 'center',
+                  marginTop: '3.5rem'
                 }}
                 className="scroll-indicator-bar"
               >

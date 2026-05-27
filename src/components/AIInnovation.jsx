@@ -10,7 +10,7 @@ export default function AIInnovation() {
   const handleMouseMove = (e) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    
+
     // Calculate normalized cursor coordinates within this specific section bounds
     const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -55,10 +55,10 @@ export default function AIInnovation() {
       <div className="glow-bg glow-blue" style={{ width: '500px', height: '500px', bottom: '10%', left: '-10%', opacity: 0.04 }} />
 
       <div className="container" style={{ position: 'relative', zIndex: 5 }}>
-        
+
         {/* Main Content Layout Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '5rem', alignItems: 'center' }} className="ai-layout-grid">
-          
+
           {/* Left Column: Copywriting */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -115,7 +115,7 @@ export default function AIInnovation() {
                 </div>
               ))}
             </div>
-            
+
             <div style={{ marginTop: '1rem' }}>
               <a href="#contact" className="btn-primary">
                 <span>Accelerate AI Roadmap</span>
@@ -139,7 +139,7 @@ export default function AIInnovation() {
           >
             {/* 3D R3F Neural Network */}
             <NeuralCanvas cursorPosition={cursorPosition} />
-            
+
             {/* Tech details panel overlay */}
             <div
               style={{
