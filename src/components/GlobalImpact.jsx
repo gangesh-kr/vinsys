@@ -270,6 +270,8 @@ export default function GlobalImpact() {
   const [activeHub, setActiveHub] = useState(null);
   const sectionRef = useRef(null);
   const headerRef = useRef(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoRef = useRef(null);
 
   // GSAP ScrollTrigger reveals
   useEffect(() => {
@@ -311,6 +313,35 @@ export default function GlobalImpact() {
     return () => ctx.revert();
   }, []);
 
+  // Video load detection
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.readyState >= 3) {
+      setVideoLoaded(true);
+    }
+
+    const handlePlay = () => setVideoLoaded(true);
+    const handleError = () => setVideoLoaded(false);
+
+    video.addEventListener('playing', handlePlay);
+    video.addEventListener('error', handleError);
+    video.addEventListener('stalled', handleError);
+
+    if (video.paused) {
+      video.play().catch((err) => {
+        console.warn('GlobalImpact video autoplay blocked or failed:', err);
+      });
+    }
+
+    return () => {
+      video.removeEventListener('playing', handlePlay);
+      video.removeEventListener('error', handleError);
+      video.removeEventListener('stalled', handleError);
+    };
+  }, []);
+
   const globalHubs = [
     { id: 'hq', name: 'Pune (Global HQ), India', x: 70, y: 55, details: '500+ experts, Core transformation hub' },
     { id: 'uae', name: 'Dubai, UAE', x: 62, y: 45, details: 'Middle East training & consulting' },
@@ -347,9 +378,64 @@ export default function GlobalImpact() {
       }}
       id="global-impact"
     >
+      {/* Background Video */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          pointerEvents: 'none',
+          zIndex: 0,
+          opacity: videoLoaded ? 0.7 : 0,
+          transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+        }}
+      >
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260306_074215_04640ca7-042c-45d6-bb56-58b1e8a42489.mp4" type="video/mp4" />
+      </video>
+
+      {/* Clear Video Overlay (Active when video is loaded) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(180deg, rgba(247,247,247,0.5) 0%, rgba(247,247,247,0.7) 100%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+          opacity: videoLoaded ? 1 : 0,
+          transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+        }}
+      />
+
+      {/* Fallback Overlay (Active when video fails or is loading) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: '#f7f7f7',
+          pointerEvents: 'none',
+          zIndex: 1,
+          opacity: videoLoaded ? 0 : 1,
+          transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+        }}
+      />
+
       <div className="glow-bg glow-cyan" style={{ width: '500px', height: '500px', bottom: '0px', left: '-10%', opacity: 0.04 }} />
 
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 5 }}>
         {/* Section Header */}
         <div className="section-header" ref={headerRef}>
           <span className="section-tag">Global Impact</span>

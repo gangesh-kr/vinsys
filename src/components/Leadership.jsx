@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Quote, User, Briefcase, Award } from 'lucide-react';
@@ -10,6 +10,8 @@ export default function Leadership() {
   const sectionRef = useRef(null);
   const triggerRef = useRef(null);
   const bentoRef = useRef(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoRef = useRef(null);
 
   const leaders = [
     {
@@ -88,6 +90,36 @@ export default function Leadership() {
 
     return () => mm.revert();
   }, []);
+
+  // Video load detection
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.readyState >= 3) {
+      setVideoLoaded(true);
+    }
+
+    const handlePlay = () => setVideoLoaded(true);
+    const handleError = () => setVideoLoaded(false);
+
+    video.addEventListener('playing', handlePlay);
+    video.addEventListener('error', handleError);
+    video.addEventListener('stalled', handleError);
+
+    if (video.paused) {
+      video.play().catch((err) => {
+        console.warn('Leadership video autoplay blocked or failed:', err);
+      });
+    }
+
+    return () => {
+      video.removeEventListener('playing', handlePlay);
+      video.removeEventListener('error', handleError);
+      video.removeEventListener('stalled', handleError);
+    };
+  }, []);
+
   return (
     <div ref={triggerRef} style={{ width: '100%' }}>
       <section
@@ -104,10 +136,65 @@ export default function Leadership() {
         }}
         id="about"
       >
+        {/* Background Video */}
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            pointerEvents: 'none',
+            zIndex: 0,
+            opacity: videoLoaded ? 0.55 : 0,
+            transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+          }}
+        >
+          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260302_085640_276ea93b-d7da-4418-a09b-2aa5b490e838.mp4" type="video/mp4" />
+        </video>
+
+        {/* Clear Video Overlay (Active when video is loaded) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(180deg, rgba(252,252,252,0.6) 0%, rgba(252,252,252,0.75) 100%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+            opacity: videoLoaded ? 1 : 0,
+            transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+          }}
+        />
+
+        {/* Fallback Overlay (Active when video fails or is loading) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: '#fcfcfc',
+            pointerEvents: 'none',
+            zIndex: 1,
+            opacity: videoLoaded ? 0 : 1,
+            transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+          }}
+        />
+
         {/* Soft atmospheric background glow */}
         <div className="glow-bg glow-purple" style={{ width: '500px', height: '500px', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.03 }} />
 
-        <div className="container" style={{ position: 'relative', zIndex: 3, width: '100%' }}>
+        <div className="container" style={{ position: 'relative', zIndex: 5, width: '100%' }}>
 
           {/* Header */}
           <div style={{ marginBottom: '4.5rem', textAlign: 'center' }}>

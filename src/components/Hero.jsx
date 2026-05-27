@@ -151,27 +151,6 @@ export default function Hero({ onEnquireClick }) {
       }}
       id="hero"
     >
-      {/* Background Video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          pointerEvents: 'none',
-          zIndex: 0,
-          opacity: 0.8
-        }}
-      >
-        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260306_074215_04640ca7-042c-45d6-bb56-58b1e8a42489.mp4" type="video/mp4" />
-      </video>
-
       {/* Video Overlay for Readability and Blend */}
       <div
         style={{
