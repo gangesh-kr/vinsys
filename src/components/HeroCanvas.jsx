@@ -54,7 +54,7 @@ function PulsingBeacon({ position, color, name }) {
       </mesh>
 
       {/* Labeled HTML overlay */}
-      <Html distanceFactor={7} center>
+      <Html distanceFactor={7} center occlude>
         <div style={{
           background: 'rgba(255, 255, 255, 0.95)',
           border: `1.5px solid ${color}`,
@@ -92,17 +92,17 @@ function Globe({ cursorPosition }) {
   const groupRef = useRef();
   const globePointsRef = useRef();
 
-  const radius = 2.2;
-  const pointsCount = 350;
+  const radius = 1.8;
+  const pointsCount = 160;
 
-  // Global office beacon locations
+  // Global office beacon locations (spaced out uniformly to prevent overlap)
   const beacons = useMemo(() => [
-    { name: 'Pune (Global HQ)', pos: [0.7, 0.7, radius * 0.88], color: '#ad332d' },
-    { name: 'Dubai Office', pos: [0.1, 1.1, radius * 0.82], color: '#f69320' },
-    { name: 'New York Office', pos: [-1.4, 0.6, radius * 0.7], color: '#f69320' },
-    { name: 'London Office', pos: [-0.8, 1.3, radius * 0.72], color: '#f69320' },
-    { name: 'Riyadh Office', pos: [-0.4, 0.8, radius * 0.88], color: '#ad332d' },
-    { name: 'Singapore Office', pos: [1.3, -0.4, radius * 0.74], color: '#ad332d' }
+    { name: 'Pune (Global HQ)', pos: [0.8, 0.6, radius * 0.88], color: '#ad332d' },
+    { name: 'Dubai Office', pos: [0.1, 1.2, radius * 0.72], color: '#f69320' },
+    { name: 'New York Office', pos: [-1.3, 0.5, radius * 0.65], color: '#f69320' },
+    { name: 'London Office', pos: [-0.6, 1.3, radius * 0.68], color: '#f69320' },
+    { name: 'Riyadh Office', pos: [-0.3, 0.3, radius * 0.95], color: '#ad332d' },
+    { name: 'Singapore Office', pos: [1.2, -0.6, radius * 0.76], color: '#ad332d' }
   ], [radius]);
 
   // Generate Fibonacci Sphere points
@@ -128,13 +128,13 @@ function Globe({ cursorPosition }) {
     return [positions, createDotTexture('#ad332d')];
   }, [pointsCount, radius]);
 
-  // Generate 8 global connectivity curves
+  // Generate global connectivity curves
   const curves = useMemo(() => {
     const list = [];
     const pointsArray = [];
 
-    // Convert pos typed array to vectors
-    for (let i = 0; i < pointsCount; i += 40) {
+    // Convert pos typed array to vectors with a stride that matches reduced points
+    for (let i = 0; i < pointsCount; i += 20) {
       pointsArray.push(new THREE.Vector3(
         pointsPositions[i * 3],
         pointsPositions[i * 3 + 1],
@@ -171,16 +171,24 @@ function Globe({ cursorPosition }) {
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
-    // Rotate globe automatically
+    // Rotate globe automatically and respond to mouse Y/X movements
     if (groupRef.current) {
-      groupRef.current.rotation.y = time * 0.04;
+      // Automatic continuous rotation on Y
+      const autoY = time * 0.04;
 
       // Merge cursor parallax rotation
       const targetX = (cursorPosition.current.x * Math.PI) * 0.15;
       const targetY = (cursorPosition.current.y * Math.PI) * 0.15;
 
+      // Smoothly interpolate vertical rotation (X axis)
       groupRef.current.rotation.x += (targetY - groupRef.current.rotation.x) * 0.05;
-      groupRef.current.rotation.y += (targetX - groupRef.current.rotation.y) * 0.05;
+
+      // Smoothly interpolate horizontal parallax offset (Y axis) without overwriting automatic rotation
+      if (groupRef.current.parallaxY === undefined) {
+        groupRef.current.parallaxY = 0;
+      }
+      groupRef.current.parallaxY += (targetX - groupRef.current.parallaxY) * 0.05;
+      groupRef.current.rotation.y = autoY + groupRef.current.parallaxY;
     }
 
     // Animate network packet coordinates along bezier paths
@@ -207,23 +215,23 @@ function Globe({ cursorPosition }) {
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.12}
+          size={0.09}
           map={dotTexture}
           transparent={true}
-          opacity={0.8}
+          opacity={0.65}
           depthWrite={false}
           blending={THREE.NormalBlending}
         />
       </points>
 
-      {/* 2. Inner Grid Sphere (Latitude/Longitude lines) */}
+      {/* 2. Inner Grid Sphere (Soft Latitude/Longitude lines) */}
       <mesh>
-        <sphereGeometry args={[radius * 0.98, 24, 24]} />
+        <sphereGeometry args={[radius * 0.98, 16, 16]} />
         <meshBasicMaterial
-          color="#888888"
+          color="rgba(173, 51, 45, 0.15)"
           wireframe={true}
           transparent={true}
-          opacity={0.48}
+          opacity={0.15}
         />
       </mesh>
 
@@ -236,29 +244,12 @@ function Globe({ cursorPosition }) {
             <lineBasicMaterial
               color="#ad332d"
               transparent={true}
-              opacity={0.65}
+              opacity={0.22}
               blending={THREE.NormalBlending}
             />
           </line>
         );
       })}
-
-      {/* 4. Tilted Orbital Globe Rings (Satellite/Data tracks) */}
-      {/* Red/Crimson Ring */}
-      <mesh rotation={[Math.PI / 4, 0, 0]}>
-        <ringGeometry args={[radius + 0.05, radius + 0.09, 64]} />
-        <meshBasicMaterial color="#ad332d" side={THREE.DoubleSide} transparent opacity={0.4} />
-      </mesh>
-      {/* Orange Ring */}
-      <mesh rotation={[-Math.PI / 4, Math.PI / 6, 0]}>
-        <ringGeometry args={[radius + 0.12, radius + 0.16, 64]} />
-        <meshBasicMaterial color="#f69320" side={THREE.DoubleSide} transparent opacity={0.35} />
-      </mesh>
-      {/* Amber/Gold Ring */}
-      <mesh rotation={[Math.PI / 2.2, Math.PI / 4, Math.PI / 8]}>
-        <ringGeometry args={[radius + 0.19, radius + 0.22, 64]} />
-        <meshBasicMaterial color="#ffb42f" side={THREE.DoubleSide} transparent opacity={0.3} />
-      </mesh>
 
       {/* 5. Animated Data Packets (Glowing Spheres) */}
       {curves.map((_, idx) => (
@@ -266,11 +257,11 @@ function Globe({ cursorPosition }) {
           key={`packet-${idx}`}
           ref={(el) => (packetRefs.current[idx] = el)}
         >
-          <sphereGeometry args={[0.045, 8, 8]} />
+          <sphereGeometry args={[0.022, 8, 8]} />
           <meshBasicMaterial
             color="#ffb42f"
             transparent={true}
-            opacity={0.95}
+            opacity={0.9}
             blending={THREE.NormalBlending}
           />
         </mesh>
@@ -291,7 +282,7 @@ function Globe({ cursorPosition }) {
 
 function DustParticles() {
   const pointsRef = useRef();
-  const count = 120;
+  const count = 35;
 
   const [positions, speeds] = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -331,10 +322,10 @@ function DustParticles() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.03}
+        size={0.02}
         color="#ad332d"
         transparent={true}
-        opacity={0.25}
+        opacity={0.1}
         depthWrite={false}
         blending={THREE.NormalBlending}
       />
