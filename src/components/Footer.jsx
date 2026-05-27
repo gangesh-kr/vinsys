@@ -1,9 +1,43 @@
+import { useState, useRef, useEffect } from 'react';
 import { Mail, Phone, MapPin, ArrowUp } from 'lucide-react';
 
 export default function Footer({ onEnquireClick }) {
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoRef = useRef(null);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Check if video is already loaded/playing
+    if (video.readyState >= 3) {
+      setVideoLoaded(true);
+    }
+
+    const handlePlay = () => setVideoLoaded(true);
+    const handleError = () => setVideoLoaded(false);
+
+    video.addEventListener('playing', handlePlay);
+    video.addEventListener('error', handleError);
+    video.addEventListener('stalled', handleError);
+
+    // Trigger video play explicitly in case autoplay fails
+    if (video.paused) {
+      video.play().catch((err) => {
+        console.warn("Video autoplay blocked or failed:", err);
+      });
+    }
+
+    return () => {
+      video.removeEventListener('playing', handlePlay);
+      video.removeEventListener('error', handleError);
+      video.removeEventListener('stalled', handleError);
+    };
+  }, []);
 
   return (
     <footer
@@ -18,6 +52,7 @@ export default function Footer({ onEnquireClick }) {
     >
       {/* Background Video */}
       <video
+        ref={videoRef}
         autoPlay
         loop
         muted
@@ -31,13 +66,30 @@ export default function Footer({ onEnquireClick }) {
           objectFit: 'cover',
           pointerEvents: 'none',
           zIndex: 0,
-          opacity: 0.35
+          opacity: videoLoaded ? 0.75 : 0,
+          transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
         }}
       >
         <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260514_102933_4e8f73b5-775a-4179-b2fb-472f59063dcd.mp4" type="video/mp4" />
       </video>
 
-      {/* Gradient Overlay to transition from white top edge to dark background, and ensure text contrast */}
+      {/* Clear Video Overlay (Active when video is loaded successfully) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(180deg, #ffffff 0%, rgba(15, 15, 15, 0.25) 15%, rgba(10, 10, 10, 0.5) 100%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+          opacity: videoLoaded ? 1 : 0,
+          transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
+        }}
+      />
+
+      {/* Dark Fallback Overlay (Active when video fails to load or is not yet loaded) */}
       <div
         style={{
           position: 'absolute',
@@ -47,7 +99,9 @@ export default function Footer({ onEnquireClick }) {
           height: '100%',
           background: 'linear-gradient(180deg, #ffffff 0%, rgba(26, 26, 26, 0.8) 18%, rgba(20, 20, 20, 0.85) 100%)',
           pointerEvents: 'none',
-          zIndex: 1
+          zIndex: 1,
+          opacity: videoLoaded ? 0 : 1,
+          transition: 'opacity 1s cubic-bezier(0.25, 1, 0.5, 1)'
         }}
       />
 

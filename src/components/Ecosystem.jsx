@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Brain, Cpu, GraduationCap, Server, Landmark, Code, Users } from 'lucide-react';
 import TypographyReveal from './TypographyReveal';
+import EcosystemCanvas from './EcosystemCanvas';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,6 +11,18 @@ export default function Ecosystem() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const containerRef = useRef(null);
   const headerRef = useRef(null);
+  const cursorPosition = useRef({ x: 0, y: 0 });
+
+  // Handle cursor parallax values
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    
+    // Normalize coordinates from -1 to 1
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    cursorPosition.current = { x, y };
+  };
 
   // GSAP ScrollTrigger stagger reveal
   useEffect(() => {
@@ -30,8 +43,8 @@ export default function Ecosystem() {
         );
       }
 
-      // Reveal constellation cards with stagger
-      const cards = containerRef.current?.querySelectorAll('.glass-panel');
+      // Reveal cards with stagger
+      const cards = containerRef.current?.querySelectorAll('.ecosystem-card');
       if (cards && cards.length > 0) {
         gsap.fromTo(cards,
           { opacity: 0, scale: 0.9, y: 20 },
@@ -58,8 +71,8 @@ export default function Ecosystem() {
       title: 'Software Solution',
       desc: 'Developing bespoke web, mobile, and cloud software architectures engineered to scale global business operations.',
       icon: <Code size={22} />,
-      x: 18, y: 15,
-      color: 'var(--brand-orange)'
+      x: 18, y: 12,
+      color: '#ad332d' // Brand Crimson
     },
     {
       id: 2,
@@ -67,8 +80,8 @@ export default function Ecosystem() {
       title: 'IT Training & Certifications',
       desc: 'Offering official training and globally-recognized certification programs across cloud, security, and networking.',
       icon: <GraduationCap size={22} />,
-      x: 12, y: 50,
-      color: 'var(--brand-crimson)'
+      x: 12, y: 48,
+      color: '#f69320' // Brand Orange
     },
     {
       id: 3,
@@ -76,8 +89,8 @@ export default function Ecosystem() {
       title: 'AI Academy',
       desc: 'Empowering enterprise workforces with state-of-the-art machine learning capabilities, private LLMs, and RAG architectures.',
       icon: <Brain size={22} />,
-      x: 18, y: 85,
-      color: 'var(--brand-amber)'
+      x: 18, y: 84,
+      color: '#ffb42f' // Brand Amber
     },
     {
       id: 4,
@@ -85,8 +98,8 @@ export default function Ecosystem() {
       title: 'Business Academy',
       desc: 'Upskilling leaders and executives with strategic training in project management, agile consulting, and business excellence.',
       icon: <Landmark size={22} />,
-      x: 82, y: 15,
-      color: 'var(--brand-crimson)'
+      x: 82, y: 12,
+      color: '#ad332d'
     },
     {
       id: 5,
@@ -94,8 +107,8 @@ export default function Ecosystem() {
       title: 'Digital Learning',
       desc: 'Designing custom learning management systems (LMS) and e-learning courses for asynchronous organizational capability building.',
       icon: <Server size={22} />,
-      x: 88, y: 50,
-      color: 'var(--brand-orange)'
+      x: 88, y: 48,
+      color: '#f69320'
     },
     {
       id: 6,
@@ -103,14 +116,15 @@ export default function Ecosystem() {
       title: 'Resources and Recruitment',
       desc: 'Providing elite, pre-vetted corporate technology resources and recruitment services to bridge digital capability gaps.',
       icon: <Users size={22} />,
-      x: 82, y: 85,
-      color: 'var(--brand-amber)'
+      x: 82, y: 84,
+      color: '#ffb42f'
     }
   ];
 
   return (
     <section
       ref={containerRef}
+      onMouseMove={handleMouseMove}
       style={{
         padding: '8rem 0',
         background: '#ffffff',
@@ -119,8 +133,9 @@ export default function Ecosystem() {
       }}
       id="solutions"
     >
-      {/* Glow Effects */}
-      <div className="glow-bg glow-purple" style={{ width: '400px', height: '400px', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.1 }} />
+      {/* Decorative Glow Grid */}
+      <div className="glow-bg glow-purple" style={{ width: '450px', height: '450px', top: '25%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.08 }} />
+      <div className="glow-bg glow-blue" style={{ width: '450px', height: '450px', bottom: '15%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.05 }} />
 
       <div className="container">
         {/* Section Header */}
@@ -138,113 +153,18 @@ export default function Ecosystem() {
         </div>
 
         {/* Constellation Workspace (Desktop Only) */}
-        <div className="constellation-wrapper" style={{ position: 'relative', height: '580px', width: '100%', margin: '0 auto', display: 'block' }}>
-          {/* SVG Connection Lines Backdrop */}
-          <svg
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 1,
-              pointerEvents: 'none'
-            }}
-          >
-            {services.map((service) => {
-              const isHovered = hoveredNode === service.id;
-              return (
-                <g key={`path-${service.id}`}>
-                  {/* Base passive line */}
-                  <line
-                    x1="50%"
-                    y1="45%"
-                    x2={`${service.x}%`}
-                    y2={`${service.y}%`}
-                    style={{
-                      stroke: isHovered ? service.color : 'rgba(0, 0, 0, 0.08)',
-                      strokeWidth: isHovered ? 2 : 1,
-                      transition: 'all 0.4s ease'
-                    }}
-                  />
-                  {/* Glowing active path */}
-                  {isHovered && (
-                    <line
-                      x1="50%"
-                      y1="45%"
-                      x2={`${service.x}%`}
-                      y2={`${service.y}%`}
-                      style={{
-                        stroke: service.color,
-                        strokeWidth: 4,
-                        filter: 'blur(4px)',
-                        opacity: 0.6
-                      }}
-                    />
-                  )}
-                  {/* Pulsing signal dot moving down path */}
-                  {isHovered && (
-                    <circle r="4" fill={service.color} style={{ filter: 'drop-shadow(0 0 6px ' + service.color + ')' }}>
-                      <animateMotion
-                        path={`M 500,261 L ${service.x * 10},${service.y * 5.8}`} // Approximate viewBox mapping (1000x580)
-                        dur="1.2s"
-                        repeatCount="indefinite"
-                      />
-                    </circle>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Central Pulsing Core */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '45%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '120px',
-              height: '120px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(173,51,45,0.08) 0%, rgba(255,255,255,0.98) 75%)',
-              border: '1px solid rgba(173, 51, 45, 0.2)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 3,
-              boxShadow: hoveredNode 
-                ? `0 0 35px ${services.find(s => s.id === hoveredNode).color}33`
-                : '0 0 25px rgba(173, 51, 45, 0.08)',
-              transition: 'var(--transition-smooth)',
-              textAlign: 'center'
-            }}
-          >
-            <div
-              style={{
-                width: '12px',
-                height: '12px',
-                borderRadius: '50%',
-                backgroundColor: hoveredNode ? services.find(s => s.id === hoveredNode).color : 'var(--brand-crimson)',
-                animation: 'pulse 2s infinite',
-                marginBottom: '8px',
-                transition: 'background-color 0.4s ease'
-              }}
-            />
-            <span
-              style={{
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                fontFamily: 'var(--font-heading)',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: 'var(--text-primary)'
-              }}
-            >
-              Vinsys Core
-            </span>
-          </div>
+        <div 
+          className="constellation-wrapper" 
+          style={{ 
+            position: 'relative', 
+            height: '620px', 
+            width: '100%', 
+            margin: '0 auto', 
+            display: 'block' 
+          }}
+        >
+          {/* Interactive 3D Canvas in center backdrop */}
+          <EcosystemCanvas cursorPosition={cursorPosition} hoveredNode={hoveredNode} />
 
           {/* Absolute Service Cards */}
           {services.map((service) => {
@@ -254,18 +174,24 @@ export default function Ecosystem() {
                 key={service.id}
                 onMouseEnter={() => setHoveredNode(service.id)}
                 onMouseLeave={() => setHoveredNode(null)}
-                className="glass-panel"
+                className="ecosystem-card glass-panel"
                 style={{
                   position: 'absolute',
                   top: `${service.y}%`,
                   left: `${service.x}%`,
-                  transform: 'translate(-50%, -50%)' + (isHovered ? ' scale(1.05)' : ''),
-                  width: '260px',
-                  padding: '1.25rem',
+                  transform: 'translate(-50%, -50%)' + (isHovered ? ' translateY(-5px) scale(1.03)' : ''),
+                  width: '270px',
+                  padding: '1.5rem',
                   zIndex: 4,
                   cursor: 'pointer',
-                  borderColor: isHovered ? service.color : 'var(--glass-border)',
-                  boxShadow: isHovered ? `0 8px 30px ${service.color}15` : 'none',
+                  background: isHovered ? 'rgba(255, 255, 255, 0.95)' : 'rgba(247, 247, 247, 0.75)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  border: isHovered ? `1px solid ${service.color}` : '1px solid rgba(0, 0, 0, 0.05)',
+                  boxShadow: isHovered 
+                    ? `0 12px 35px ${service.color}1c, 0 4px 15px rgba(0, 0, 0, 0.02)` 
+                    : '0 4px 20px rgba(0, 0, 0, 0.01)',
+                  transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
               >
                 <div
@@ -273,43 +199,63 @@ export default function Ecosystem() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'flex-start',
-                    marginBottom: '1rem'
+                    marginBottom: '1.25rem'
                   }}
                 >
                   <div
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '8px',
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '10px',
                       background: isHovered ? service.color : 'rgba(0, 0, 0, 0.03)',
                       color: isHovered ? '#fff' : service.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      transition: 'var(--transition-smooth)'
+                      border: '1px solid rgba(0, 0, 0, 0.02)',
+                      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
                     {service.icon}
                   </div>
                   <span
                     style={{
-                      fontSize: '0.7rem',
+                      fontSize: '0.68rem',
                       fontFamily: 'var(--font-heading)',
                       fontWeight: 700,
-                      color: 'var(--text-muted)',
-                      border: '1px solid rgba(0, 0, 0, 0.06)',
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      background: 'rgba(0, 0, 0, 0.02)'
+                      color: isHovered ? service.color : 'var(--text-muted)',
+                      border: isHovered ? `1px solid ${service.color}33` : '1px solid rgba(0, 0, 0, 0.06)',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '6px',
+                      background: isHovered ? `${service.color}0a` : 'rgba(0, 0, 0, 0.02)',
+                      letterSpacing: '0.05em',
+                      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
                     {service.tag}
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem', transition: 'color 0.3s ease', color: isHovered ? '#fff' : 'var(--text-primary)' }}>
+                
+                <h3 
+                  style={{ 
+                    fontSize: '1.15rem', 
+                    fontWeight: '600',
+                    marginBottom: '0.5rem', 
+                    color: isHovered ? service.color : 'var(--text-primary)',
+                    transition: 'color 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+                  }}
+                >
                   {service.title}
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                
+                <p 
+                  style={{ 
+                    fontSize: '0.85rem', 
+                    color: 'var(--text-secondary)', 
+                    lineHeight: '1.6',
+                    fontWeight: '400' 
+                  }}
+                >
                   {service.desc}
                 </p>
               </div>
@@ -318,86 +264,131 @@ export default function Ecosystem() {
         </div>
 
         {/* Responsive Grid Fallback (Mobile/Tablet Only) */}
-        <div className="mobile-ecosystem-grid" style={{ display: 'none' }}>
-          {services.map((service) => (
+        <div className="mobile-ecosystem-wrapper" style={{ display: 'none', flexDirection: 'column', gap: '2rem' }}>
+          
+          {/* Mini Interactive 3D Canvas card for mobile */}
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '320px',
+              borderRadius: 'var(--radius-lg)',
+              background: '#f9f9fa',
+              border: '1px solid rgba(0, 0, 0, 0.05)',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <EcosystemCanvas cursorPosition={cursorPosition} hoveredNode={hoveredNode} />
+            
+            {/* Title Badge Overlay */}
             <div
-              key={`mob-${service.id}`}
-              className="glass-panel"
               style={{
-                padding: '1.5rem',
-                borderLeft: `4px solid ${service.color}`
+                position: 'absolute',
+                bottom: '1rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
+                borderRadius: '20px',
+                padding: '4px 14px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                pointerEvents: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: '1rem'
-                }}
-              >
-                <div
-                  style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '8px',
-                    background: 'rgba(0, 0, 0, 0.03)',
-                    color: service.color,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  {service.icon}
-                </div>
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 700,
-                    color: 'var(--text-muted)',
-                    border: '1px solid rgba(0, 0, 0, 0.06)',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '4px',
-                    background: 'rgba(0, 0, 0, 0.02)'
-                  }}
-                >
-                  {service.tag}
-                </span>
-              </div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{service.title}</h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{service.desc}</p>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: hoveredNode ? services.find(s => s.id === hoveredNode).color : 'var(--brand-crimson)', animation: 'pulse 1.5s infinite' }} />
+              {hoveredNode ? services.find(s => s.id === hoveredNode).title : 'Interactive Data Hub'}
             </div>
-          ))}
+          </div>
+
+          <div className="mobile-ecosystem-grid">
+            {services.map((service) => {
+              const isHovered = hoveredNode === service.id;
+              return (
+                <div
+                  key={`mob-${service.id}`}
+                  className="glass-panel mobile-card"
+                  onClick={() => setHoveredNode(hoveredNode === service.id ? null : service.id)}
+                  style={{
+                    padding: '1.5rem',
+                    borderLeft: `4px solid ${service.color}`,
+                    background: isHovered ? 'rgba(255, 255, 255, 0.98)' : 'rgba(247, 247, 247, 0.6)',
+                    borderColor: isHovered ? service.color : 'rgba(0, 0, 0, 0.05)',
+                    boxShadow: isHovered ? `0 8px 24px ${service.color}15` : 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: '1rem'
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '8px',
+                        background: 'rgba(0, 0, 0, 0.03)',
+                        color: service.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {service.icon}
+                    </div>
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        fontFamily: 'var(--font-heading)',
+                        fontWeight: 700,
+                        color: 'var(--text-muted)',
+                        border: '1px solid rgba(0, 0, 0, 0.06)',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '4px',
+                        background: 'rgba(0, 0, 0, 0.02)'
+                      }}
+                    >
+                      {service.tag}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem', color: isHovered ? service.color : 'var(--text-primary)' }}>{service.title}</h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{service.desc}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes pulse {
-          0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(173, 51, 45, 0.5);
-          }
-          70% {
-            transform: scale(1);
-            box-shadow: 0 0 0 10px rgba(173, 51, 45, 0);
-          }
-          100% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(173, 51, 45, 0);
-          }
-        }
         @media (max-width: 1024px) {
           .constellation-wrapper {
             display: none !important;
           }
+          .mobile-ecosystem-wrapper {
+            display: flex !important;
+          }
           .mobile-ecosystem-grid {
             display: grid !important;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+            gap: 1.25rem;
           }
         }
-        @media (max-width: 600px) {
+        @media (max-width: 680px) {
           .mobile-ecosystem-grid {
             grid-template-columns: 1fr !important;
           }
