@@ -1,66 +1,109 @@
-import { useState, useRef } from 'react';
-import { Brain, Cpu, Shield, GraduationCap, Server, Landmark, Code } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import { Brain, Cpu, GraduationCap, Server, Landmark, Code, Users } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Ecosystem() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const containerRef = useRef(null);
+  const headerRef = useRef(null);
+
+  // GSAP ScrollTrigger stagger reveal
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Reveal section header
+      if (headerRef.current) {
+        gsap.fromTo(headerRef.current.children,
+          { opacity: 0, y: 30, filter: 'blur(4px)' },
+          {
+            opacity: 1, y: 0, filter: 'blur(0px)',
+            duration: 0.8, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      }
+
+      // Reveal constellation cards with stagger
+      const cards = containerRef.current?.querySelectorAll('.glass-panel');
+      if (cards && cards.length > 0) {
+        gsap.fromTo(cards,
+          { opacity: 0, scale: 0.9, y: 20 },
+          {
+            opacity: 1, scale: 1, y: 0,
+            duration: 0.7, ease: 'power3.out', stagger: 0.08,
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: 'top 70%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      }
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   const services = [
     {
       id: 1,
-      title: 'AI & Tech Academy',
-      desc: 'Upskilling enterprise engineering teams with advanced AI, ML, and deep tech frameworks.',
-      icon: <Brain size={22} />,
-      x: 18, y: 15, // Percent positions for responsive layout overlay
+      tag: 'SoftSol',
+      title: 'Software Solution',
+      desc: 'Developing bespoke web, mobile, and cloud software architectures engineered to scale global business operations.',
+      icon: <Code size={22} />,
+      x: 18, y: 15,
       color: 'var(--brand-orange)'
     },
     {
       id: 2,
-      title: 'Digital Transformation',
-      desc: 'Migrating legacy architectures to modern cloud networks, data lakes, and serverless clusters.',
-      icon: <Cpu size={22} />,
+      tag: 'ITTrain',
+      title: 'IT Training & Certifications',
+      desc: 'Offering official training and globally-recognized certification programs across cloud, security, and networking.',
+      icon: <GraduationCap size={22} />,
       x: 12, y: 50,
       color: 'var(--brand-crimson)'
     },
     {
       id: 3,
-      title: 'Cybersecurity Systems',
-      desc: 'Protecting digital assets with proactive threat monitoring, SOC services, and ISO audits.',
-      icon: <Shield size={22} />,
+      tag: 'AIAcad',
+      title: 'AI Academy',
+      desc: 'Empowering enterprise workforces with state-of-the-art machine learning capabilities, private LLMs, and RAG architectures.',
+      icon: <Brain size={22} />,
       x: 18, y: 85,
       color: 'var(--brand-amber)'
     },
     {
       id: 4,
-      title: 'Enterprise Learning',
-      desc: 'Building customized corporate training platforms, LMS software, and talent management portals.',
-      icon: <GraduationCap size={22} />,
+      tag: 'BizAcad',
+      title: 'Business Academy',
+      desc: 'Upskilling leaders and executives with strategic training in project management, agile consulting, and business excellence.',
+      icon: <Landmark size={22} />,
       x: 82, y: 15,
       color: 'var(--brand-crimson)'
     },
     {
       id: 5,
-      title: 'Managed IT Services',
-      desc: '24/7 NOC monitoring, backup systems, remote infra support, and server management.',
+      tag: 'DigLearn',
+      title: 'Digital Learning',
+      desc: 'Designing custom learning management systems (LMS) and e-learning courses for asynchronous organizational capability building.',
       icon: <Server size={22} />,
       x: 88, y: 50,
       color: 'var(--brand-orange)'
     },
     {
       id: 6,
-      title: 'Strategic Consulting',
-      desc: 'Consulting on technological strategy, compliance roadmaps, and agile change systems.',
-      icon: <Landmark size={22} />,
+      tag: 'ResRec',
+      title: 'Resources and Recruitment',
+      desc: 'Providing elite, pre-vetted corporate technology resources and recruitment services to bridge digital capability gaps.',
+      icon: <Users size={22} />,
       x: 82, y: 85,
       color: 'var(--brand-amber)'
-    },
-    {
-      id: 7,
-      title: 'Custom Software Solutions',
-      desc: 'Designing and engineering secure cloud apps, microservices, and bespoke APIs.',
-      icon: <Code size={22} />,
-      x: 50, y: 85,
-      color: 'var(--brand-orange)'
     }
   ];
 
@@ -80,11 +123,11 @@ export default function Ecosystem() {
 
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
+        <div className="section-header" ref={headerRef}>
           <span className="section-tag">Transformation Ecosystem</span>
-          <h2 className="section-title text-gradient">What We Orchestrate</h2>
+          <h2 className="section-title text-gradient">Our Group Services</h2>
           <p className="section-desc">
-            A cohesive suite of enterprise solutions engineered to build operational intelligence and digital capabilities at global scale.
+            Industry-relevant Diverse Range, Customized, Adaptable, Progressive & Economical.
           </p>
         </div>
 
@@ -104,7 +147,6 @@ export default function Ecosystem() {
           >
             {services.map((service) => {
               const isHovered = hoveredNode === service.id;
-              // Center coords: (50%, 45%)
               return (
                 <g key={`path-${service.id}`}>
                   {/* Base passive line */}
@@ -222,19 +264,41 @@ export default function Ecosystem() {
               >
                 <div
                   style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '8px',
-                    background: isHovered ? service.color : 'rgba(0, 0, 0, 0.03)',
-                    color: isHovered ? '#fff' : service.color,
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '1rem',
-                    transition: 'var(--transition-smooth)'
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '1rem'
                   }}
                 >
-                  {service.icon}
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      background: isHovered ? service.color : 'rgba(0, 0, 0, 0.03)',
+                      color: isHovered ? '#fff' : service.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'var(--transition-smooth)'
+                    }}
+                  >
+                    {service.icon}
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.7rem',
+                      fontFamily: 'var(--font-heading)',
+                      fontWeight: 700,
+                      color: 'var(--text-muted)',
+                      border: '1px solid rgba(0, 0, 0, 0.06)',
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '4px',
+                      background: 'rgba(0, 0, 0, 0.02)'
+                    }}
+                  >
+                    {service.tag}
+                  </span>
                 </div>
                 <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem', transition: 'color 0.3s ease', color: isHovered ? '#fff' : 'var(--text-primary)' }}>
                   {service.title}
@@ -260,18 +324,40 @@ export default function Ecosystem() {
             >
               <div
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '8px',
-                  background: 'rgba(0, 0, 0, 0.03)',
-                  color: service.color,
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
                   marginBottom: '1rem'
                 }}
               >
-                {service.icon}
+                <div
+                  style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '8px',
+                    background: 'rgba(0, 0, 0, 0.03)',
+                    color: service.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  {service.icon}
+                </div>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontFamily: 'var(--font-heading)',
+                    fontWeight: 700,
+                    color: 'var(--text-muted)',
+                    border: '1px solid rgba(0, 0, 0, 0.06)',
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '4px',
+                    background: 'rgba(0, 0, 0, 0.02)'
+                  }}
+                >
+                  {service.tag}
+                </span>
               </div>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{service.title}</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{service.desc}</p>

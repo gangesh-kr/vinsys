@@ -1,13 +1,59 @@
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Mail, Phone, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function Contact() {
+  const containerRef = useRef(null);
+  const headerRef = useRef(null);
   const handleSubmit = (e) => {
     e.preventDefault();
     alert('Transformation request submitted successfully. A Vinsys enterprise architect will contact you within 12 hours.');
   };
 
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (headerRef.current) {
+        gsap.fromTo(headerRef.current.children,
+          { opacity: 0, y: 30, filter: 'blur(4px)' },
+          {
+            opacity: 1, y: 0, filter: 'blur(0px)',
+            duration: 0.8, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      }
+
+      if (containerRef.current) {
+        const grid = containerRef.current.querySelector('.contact-grid');
+        if (grid && grid.children.length > 0) {
+          gsap.fromTo(grid.children,
+            { opacity: 0, y: 40 },
+            {
+              opacity: 1, y: 0,
+              duration: 0.8, ease: 'power3.out', stagger: 0.15,
+              scrollTrigger: {
+                trigger: containerRef.current,
+                start: 'top 75%',
+                toggleActions: 'play none none none'
+              }
+            }
+          );
+        }
+      }
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
+      ref={containerRef}
       style={{
         padding: '8rem 0 10rem 0',
         background: '#ffffff',
@@ -20,7 +66,7 @@ export default function Contact() {
 
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
+        <div className="section-header" ref={headerRef}>
           <span className="section-tag">Connect Hub</span>
           <h2 className="section-title text-gradient">Initiate Transformation</h2>
           <p className="section-desc">

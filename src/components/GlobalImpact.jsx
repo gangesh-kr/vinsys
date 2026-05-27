@@ -1,29 +1,152 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Globe, MapPin, Award, Users } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
+
+function MetricCounter({ value }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const elementRef = useRef(null);
+  const animatedRef = useRef(false);
+  
+  useEffect(() => {
+    if (animatedRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !animatedRef.current) {
+            animatedRef.current = true;
+            animate();
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+    
+    const animate = () => {
+      const match = value.match(/([\d,.]+)/);
+      if (!match) return;
+      
+      const numericStr = match[1];
+      const isFloat = numericStr.includes('.');
+      const targetVal = parseFloat(numericStr.replace(/,/g, ''));
+      
+      if (isNaN(targetVal)) return;
+      
+      const prefix = value.substring(0, match.index);
+      const suffix = value.substring(match.index + numericStr.length);
+      
+      const obj = { val: 0 };
+      
+      gsap.to(obj, {
+        val: targetVal,
+        duration: 1.5,
+        ease: 'power2.out',
+        onUpdate: () => {
+          let current = obj.val;
+          if (isFloat) {
+            current = current.toFixed(numericStr.split('.')[1].length);
+          } else {
+            current = Math.floor(current);
+            if (value.includes(',')) {
+              current = current.toLocaleString();
+            }
+          }
+          setDisplayValue(`${prefix}${current}${suffix}`);
+        }
+      });
+    };
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, [value]);
+  
+  return <span ref={elementRef}>{displayValue}</span>;
+}
 
 export default function GlobalImpact() {
   const [activeHub, setActiveHub] = useState(null);
+  const sectionRef = useRef(null);
+  const headerRef = useRef(null);
+
+  // GSAP ScrollTrigger reveals
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Header reveal
+      if (headerRef.current) {
+        gsap.fromTo(headerRef.current.children,
+          { opacity: 0, y: 30, filter: 'blur(4px)' },
+          {
+            opacity: 1, y: 0, filter: 'blur(0px)',
+            duration: 0.8, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: {
+              trigger: headerRef.current,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      }
+
+      // Map and highlights stagger reveal
+      const gridItems = sectionRef.current?.querySelectorAll('.glass-panel');
+      if (gridItems && gridItems.length > 0) {
+        gsap.fromTo(gridItems,
+          { opacity: 0, y: 40, scale: 0.97 },
+          {
+            opacity: 1, y: 0, scale: 1,
+            duration: 0.8, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 70%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   const globalHubs = [
     { id: 'hq', name: 'Pune (Global HQ), India', x: 70, y: 55, details: '500+ experts, Core transformation hub' },
-    { id: 'us', name: 'New York, USA', x: 25, y: 35, details: 'Enterprise sales & corporate strategy' },
-    { id: 'uk', name: 'London, United Kingdom', x: 47, y: 30, details: 'European consulting operations' },
     { id: 'uae', name: 'Dubai, UAE', x: 62, y: 45, details: 'Middle East training & consulting' },
-    { id: 'sg', name: 'Singapore', x: 77, y: 62, details: 'APAC digital execution center' },
-    { id: 'au', name: 'Sydney, Australia', x: 88, y: 80, details: 'Oceania workforce training' }
+    { id: 'us', name: 'New York, USA', x: 25, y: 35, details: 'Enterprise sales & corporate strategy' },
+    { id: 'ksa', name: 'Riyadh, Saudi Arabia', x: 58, y: 46, details: 'Regional hub for upskilling programs' },
+    { id: 'qatar', name: 'Doha, Qatar', x: 61, y: 47, details: 'Enterprise consulting office' },
+    { id: 'nigeria', name: 'Lagos, Nigeria', x: 48, y: 52, details: 'African talent upskilling center' },
+    { id: 'oman', name: 'Muscat, Oman', x: 64, y: 48, details: 'Workforce enablement operations' },
+    { id: 'uk', name: 'London, United Kingdom', x: 47, y: 30, details: 'European consulting operations' },
+    { id: 'congo', name: 'Brazzaville, Republic of Congo', x: 52, y: 58, details: 'Digital infrastructure delivery center' }
   ];
 
   const highlights = [
-    { title: 'Global Delivery Network', val: '50+', sub: 'Countries Enabled', icon: <Globe size={20} /> },
-    { title: 'Local Delivery Hubs', val: '12+', sub: 'Physical Centers', icon: <MapPin size={20} /> },
-    { title: 'Accredited Curriculum', val: '4,000+', sub: 'Certified Courses', icon: <Award size={20} /> },
-    { title: 'Talent Ecosystem', val: '1.2M+', sub: 'Members Worldwide', icon: <Users size={20} /> }
+    { title: 'Industry Legacy', val: '2+ Decades', sub: 'Of global enterprise transformation leadership', icon: <Globe size={20} /> },
+    { title: 'Expert Delivery', val: '1,000+', sub: 'Certified subject matter experts & trainers', icon: <Users size={20} /> },
+    { title: 'Software Execution', val: '100+', sub: 'Enterprise-grade software projects delivered', icon: <Award size={20} /> },
+    { title: 'Upskilled Workforce', val: '1 Million+', sub: 'Professionals empowered globally', icon: <MapPin size={20} /> }
+  ];
+
+  const partners = [
+    'Amazon Web Services', 'Citrix', 'AOSH', 'Autodesk', 'Cisco', 'DevOps Institute',
+    'IIBA', 'EC-Council', 'VMware', 'SAP', 'Salesforce', 'Palo Alto Networks',
+    'IOSH', 'ISACA', 'CertNexus', 'CompTIA', 'ISC2', 'ISO', 'DASA', 'Microsoft', 'IBM', 'PMI'
   ];
 
   return (
     <section
+      ref={sectionRef}
       style={{
-        padding: '8rem 0',
+        padding: '8rem 0 4rem 0',
         background: '#f7f7f7',
         position: 'relative',
         overflow: 'hidden'
@@ -34,7 +157,7 @@ export default function GlobalImpact() {
 
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
+        <div className="section-header" ref={headerRef}>
           <span className="section-tag">Global Impact</span>
           <h2 className="section-title text-gradient">World-Class Footprint</h2>
           <p className="section-desc">
@@ -43,7 +166,7 @@ export default function GlobalImpact() {
         </div>
 
         {/* Global Layout Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '4rem', alignItems: 'center' }} className="impact-grid">
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '4rem', alignItems: 'center', marginBottom: '6rem' }} className="impact-grid">
           
           {/* 1. Interactive High-Tech SVG Map */}
           <div
@@ -236,7 +359,7 @@ export default function GlobalImpact() {
                       marginBottom: '0.25rem'
                     }}
                   >
-                    {item.val}
+                    <MetricCounter value={item.val} />
                   </span>
                   <span style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '0.15rem' }}>{item.title}</span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{item.sub}</span>
@@ -246,6 +369,46 @@ export default function GlobalImpact() {
           </div>
 
         </div>
+
+        {/* Scrolling Partner Logo Wall */}
+        <div style={{ position: 'relative', width: '100%', overflow: 'hidden', padding: '2rem 0', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+          <h3 style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '2rem' }}>
+            Trusted by Elite Technology & Learning Partners
+          </h3>
+          <div style={{ display: 'flex', width: '200%' }} className="marquee-wrapper">
+            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide">
+              {partners.slice(0, 11).map((p, i) => (
+                <span key={`p1-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  {p}
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide">
+              {partners.slice(0, 11).map((p, i) => (
+                <span key={`p2-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'flex', width: '200%', marginTop: '1.5rem' }} className="marquee-wrapper-reverse">
+            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide-reverse">
+              {partners.slice(11).map((p, i) => (
+                <span key={`p3-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  {p}
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide-reverse">
+              {partners.slice(11).map((p, i) => (
+                <span key={`p4-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <style>{`
@@ -259,6 +422,23 @@ export default function GlobalImpact() {
             opacity: 0;
           }
         }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100%); }
+        }
+        @keyframes marqueeReverse {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(0); }
+        }
+        .marquee-wrapper {
+          overflow: hidden;
+        }
+        .marquee-slide {
+          animation: marquee 25s linear infinite;
+        }
+        .marquee-slide-reverse {
+          animation: marqueeReverse 25s linear infinite;
+        }
         @media (max-width: 992px) {
           .impact-grid {
             grid-template-columns: 1fr !important;
@@ -268,6 +448,10 @@ export default function GlobalImpact() {
         @media (max-width: 576px) {
           .highlight-grid {
             grid-template-columns: 1fr !important;
+          }
+          .marquee-slide span, .marquee-slide-reverse span {
+            font-size: 0.9rem !important;
+            margin: 0 1rem;
           }
         }
       `}</style>

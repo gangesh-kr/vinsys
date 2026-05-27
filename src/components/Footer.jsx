@@ -1,6 +1,6 @@
 import { Mail, Phone, MapPin, ArrowUp } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ onEnquireClick }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -50,7 +50,7 @@ export default function Footer() {
                 style={{ height: '48px', width: 'auto', filter: 'drop-shadow(0 0 10px rgba(6, 182, 212, 0.2))' }} 
               />
             </a>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '360px', lineHeight: '1.6' }}>
+            <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.95rem', maxWidth: '360px', lineHeight: '1.6' }}>
               A global leader in enterprise transformation, corporate learning, digital solutions, and AI-enabled talent building. Empowering Fortune 500 organizations worldwide since 1998.
             </p>
             {/* Certifications badges placeholder */}
@@ -64,41 +64,43 @@ export default function Footer() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <h4 style={{ fontSize: '1.1rem', letterSpacing: '0.05em', color: '#fff' }}>Solutions</h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', listStyle: 'none', padding: 0 }}>
-              <li><a href="#solutions" className="footer-link">AI & Tech Academy</a></li>
-              <li><a href="#solutions" className="footer-link">Digital Transformation</a></li>
-              <li><a href="#solutions" className="footer-link">Cybersecurity</a></li>
-              <li><a href="#solutions" className="footer-link">Enterprise Consulting</a></li>
-              <li><a href="#solutions" className="footer-link">Managed IT Services</a></li>
+              <li><a href="#solutions" className="footer-link">Software Solution</a></li>
+              <li><a href="#solutions" className="footer-link">IT Training & Certifications</a></li>
+              <li><a href="#solutions" className="footer-link">AI Academy</a></li>
+              <li><a href="#solutions" className="footer-link">Business Academy</a></li>
+              <li><a href="#solutions" className="footer-link">Digital Learning</a></li>
+              <li><a href="#solutions" className="footer-link">Resources and Recruitment</a></li>
             </ul>
           </div>
 
-          {/* Company Column */}
+          {/* Company Column -> Important Links */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <h4 style={{ fontSize: '1.1rem', letterSpacing: '0.05em', color: '#fff' }}>Company</h4>
+            <h4 style={{ fontSize: '1.1rem', letterSpacing: '0.05em', color: '#fff' }}>Important Links</h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', listStyle: 'none', padding: 0 }}>
-              <li><a href="#about" className="footer-link">About Vinsys</a></li>
-              <li><a href="#case-studies" className="footer-link">Success Stories</a></li>
-              <li><a href="#timeline" className="footer-link">History & Milestones</a></li>
-              <li><a href="#global-impact" className="footer-link">Global Footprint</a></li>
-              <li><a href="#contact" className="footer-link">Connect Hub</a></li>
+              <li><a href="#about" className="footer-link">About Us</a></li>
+              <li><a href="#" className="footer-link">Investor</a></li>
+              <li><a href="#career" className="footer-link">Career</a></li>
+              <li><a href="#csr" className="footer-link">CSR</a></li>
+              <li><a href="#insights" className="footer-link">Press Release</a></li>
+              <li><button onClick={onEnquireClick} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', font: 'inherit' }} className="footer-link">Contact Us</button></li>
             </ul>
           </div>
 
           {/* Contact & HQ Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <h4 style={{ fontSize: '1.1rem', letterSpacing: '0.05em', color: '#fff' }}>Global HQ</h4>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '1rem', listStyle: 'none', padding: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '1rem', listStyle: 'none', padding: 0, fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.7)' }}>
               <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                 <MapPin size={18} style={{ color: 'var(--brand-orange)', flexShrink: 0, marginTop: '2px' }} />
                 <span>Vinsys IT Services Ltd,<br />Shivajinagar, Pune, MH, India</span>
               </li>
               <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                 <Mail size={18} style={{ color: 'var(--brand-orange)' }} />
-                <a href="mailto:info@vinsys.com" style={{ color: 'inherit' }} className="footer-link">info@vinsys.com</a>
+                <a href="mailto:enquiry@vinsys.com" style={{ color: 'inherit' }} className="footer-link">enquiry@vinsys.com</a>
               </li>
               <li style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                 <Phone size={18} style={{ color: 'var(--brand-orange)' }} />
-                <span>+91 20 6744 4444</span>
+                <span>+91 2067444700</span>
               </li>
             </ul>
             {/* Social Links */}
@@ -130,10 +132,10 @@ export default function Footer() {
 
         {/* Footer Bottom Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            &copy; {new Date().getFullYear()} Vinsys IT Services. All rights reserved.
+          <p style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.45)' }}>
+            &copy; 1998-2026 Vinsys | All Rights Reserved. Privacy Policy | Terms & Conditions
           </p>
-          <div style={{ display: 'flex', gap: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', gap: '2rem', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.45)' }}>
             <a href="#" className="footer-link-muted">Privacy Policy</a>
             <a href="#" className="footer-link-muted">Terms of Service</a>
             <a href="#" className="footer-link-muted">GDPR Compliance</a>
@@ -163,7 +165,7 @@ export default function Footer() {
 
       <style>{`
         .footer-link {
-          color: var(--text-secondary);
+          color: rgba(255, 255, 255, 0.65);
           transition: var(--transition-fast);
         }
         .footer-link:hover {
@@ -171,6 +173,7 @@ export default function Footer() {
           padding-left: 4px;
         }
         .footer-link-muted {
+          color: rgba(255, 255, 255, 0.45);
           transition: var(--transition-fast);
         }
         .footer-link-muted:hover {
@@ -180,12 +183,12 @@ export default function Footer() {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           background: rgba(255, 255, 255, 0.02);
           display: flex;
           alignItems: center;
           justify-content: center;
-          color: var(--text-secondary);
+          color: rgba(255, 255, 255, 0.65);
           transition: var(--transition-smooth);
         }
         .social-icon-btn:hover {

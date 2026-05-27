@@ -1,9 +1,76 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { ArrowRight, ChevronRight, Milestone } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
+
+function MetricCounter({ value }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const elementRef = useRef(null);
+  const animatedRef = useRef(false);
+  
+  useEffect(() => {
+    if (animatedRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !animatedRef.current) {
+            animatedRef.current = true;
+            animate();
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+    
+    const animate = () => {
+      const match = value.match(/([\d,.]+)/);
+      if (!match) return;
+      
+      const numericStr = match[1];
+      const isFloat = numericStr.includes('.');
+      const targetVal = parseFloat(numericStr.replace(/,/g, ''));
+      
+      if (isNaN(targetVal)) return;
+      
+      const prefix = value.substring(0, match.index);
+      const suffix = value.substring(match.index + numericStr.length);
+      
+      const obj = { val: 0 };
+      
+      gsap.to(obj, {
+        val: targetVal,
+        duration: 1.5,
+        ease: 'power2.out',
+        onUpdate: () => {
+          let current = obj.val;
+          if (isFloat) {
+            current = current.toFixed(numericStr.split('.')[1].length);
+          } else {
+            current = Math.floor(current);
+            if (value.includes(',')) {
+              current = current.toLocaleString();
+            }
+          }
+          setDisplayValue(`${prefix}${current}${suffix}`);
+        }
+      });
+    };
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, [value]);
+  
+  return <span ref={elementRef}>{displayValue}</span>;
+}
 
 export default function CaseStudies() {
   const triggerRef = useRef(null);
@@ -56,54 +123,106 @@ export default function CaseStudies() {
   const cases = [
     {
       id: 1,
-      tag: 'Cloud Migration & Upskilling',
-      title: 'Global Telecom Giant Scaling AWS',
-      client: 'Fortune 100 Telco operator',
-      challenge: 'Legacy system downtime and shortage of internal Kubernetes & cloud engineering skills.',
-      solution: 'Re-architected monolithic nodes to microservices and trained 1,200+ developers in custom cloud structures.',
+      tag: 'Digital Transformation',
+      title: 'Digital Transformation Roadmap for Banking',
+      client: 'Middle East Retail Bank',
+      challenge: 'Legacy monolithic database systems causing core transaction lags.',
+      solution: 'Implemented a modernized microservices container grid and cloud security strategy.',
       impacts: [
-        { label: 'Cloud Core Certified', value: '1,200+ Devs' },
-        { label: 'AWS Migration Speed', value: '3x Faster' },
-        { label: 'Downtime Reduction', value: '99.9% SLA' }
+        { label: 'Latency Reduced', value: '3.2s to 0.1s' },
+        { label: 'Database SLA', value: '100% Uptime' },
+        { label: 'Active Hubs', value: '12 Enabled' }
       ]
     },
     {
       id: 2,
-      tag: 'Cybersecurity & Governance',
-      title: 'Major Banking Threat Neutralization',
-      client: 'Middle East Retail Bank',
-      challenge: 'Expanding API endpoint vulnerability surfaces and rising global ransomware threats.',
-      solution: 'Established central Security Operations (SOC), engineered SIEM rules, and trained internal security analysts.',
+      tag: 'AI & ML Academy',
+      title: 'AI-First Manufacturing Logistics Upskilling',
+      client: 'Global Automotive Leader',
+      challenge: 'Heavy assembly line down-times due to slow diagnostic manual inputs.',
+      solution: 'Created customized prompt engineering and LLM query courseware for assembly crews.',
       impacts: [
-        { label: 'Audit Score Compliance', value: '100% ISO' },
-        { label: 'Threat Mitigation', value: 'Immediate' },
-        { label: 'SecOps Staff Upskilled', value: '250+ Agents' }
+        { label: 'Assembly Crew', value: '800+ Trained' },
+        { label: 'Line Downtime', value: '-22% Saved' },
+        { label: 'Annual Value', value: '$3.8M ROI' }
       ]
     },
     {
       id: 3,
-      tag: 'AI-First Automation',
-      title: 'Automating Predictive Systems',
-      client: 'Global Automotive Leader',
-      challenge: 'Heavy factory downtime due to manual diagnostic log reporting delays.',
-      solution: 'Custom fine-tuned diagnostic AI models (LLMs) with private RAG databases, upskilling 800+ assembly engineers.',
+      tag: 'Digital Learning',
+      title: 'LMS Deployment for Healthcare Systems',
+      client: 'Multi-hospital Health Group',
+      challenge: 'Fragmented clinical certification tracking across multiple remote clinics.',
+      solution: 'Built and deployed a unified compliance portal with custom nursing training pathways.',
       impacts: [
-        { label: 'Downtime Decreased', value: '22%' },
-        { label: 'Annual System Savings', value: '$3.8M' },
-        { label: 'Model Accuracy Score', value: '96.2%' }
+        { label: 'Nurses Upskilled', value: '80,000+' },
+        { label: 'User Rating', value: '94% Score' },
+        { label: 'Compliance Audit', value: '100% Pass' }
       ]
     },
     {
       id: 4,
-      tag: 'Workforce Ecosystems',
-      title: 'Centralized Health Training Core',
-      client: 'Multi-hospital Healthcare Group',
-      challenge: 'Inconsistent patient service records due to disparate nursing upskilling software structures.',
-      solution: 'Deployed unified custom LMS platforms and created standard nursing training workflows across 12 centers.',
+      tag: 'Software Solution',
+      title: 'Enterprise AWS Cloud Architecture Migration',
+      client: 'Fortune 100 Telco Operator',
+      challenge: 'Unscalable network bandwidth during peak holiday loads.',
+      solution: 'Migrated server architectures to automated serverless AWS Kubernetes nodes.',
       impacts: [
-        { label: 'Nurses Onboarded', value: '80k+' },
-        { label: 'Operational Errors', value: '-35%' },
-        { label: 'Platform Satisfaction', value: '94%' }
+        { label: 'Migration Speed', value: '3x Faster' },
+        { label: 'Peak Outages', value: '0% Recorded' },
+        { label: 'Devs Enabled', value: '1,200+' }
+      ]
+    },
+    {
+      id: 5,
+      tag: 'IT Services',
+      title: 'Cybersecurity Auditing & Threat Management',
+      client: 'Global Retail Enterprise',
+      challenge: 'Growing ransomware vulnerabilities on public API payment systems.',
+      solution: 'Orchestrated unified SIEM dashboards, SOC playbooks, and security reviews.',
+      impacts: [
+        { label: 'Threat Mitigation', value: '100% Neutral' },
+        { label: 'Certifications', value: 'ISO 27001' },
+        { label: 'Data Breaches', value: 'Zero Cases' }
+      ]
+    },
+    {
+      id: 6,
+      tag: 'Managed Services',
+      title: 'NOC Infrastructure for Public Sector Agencies',
+      client: 'Metropolitan Government',
+      challenge: 'Legacy citizen-facing portal outages and lack of proactive server monitoring.',
+      solution: 'Established 24/7 NOC server analytics, backup failovers, and remote admin portals.',
+      impacts: [
+        { label: 'Portal Uptime', value: '99.99%' },
+        { label: 'Resolutions', value: '60% Faster' },
+        { label: 'Citizens Served', value: '5 Million+' }
+      ]
+    },
+    {
+      id: 7,
+      tag: 'Business Academy',
+      title: 'Agile Project Advisory & Leadership',
+      client: 'National Retail Chain',
+      challenge: 'Delayed project delivery and disconnect between product managers and devs.',
+      solution: 'Conducted agile bootcamp sprints and executive change management frameworks.',
+      impacts: [
+        { label: 'Delivery Time', value: '-35% Saved' },
+        { label: 'Leaders Coached', value: '150+ Agents' },
+        { label: 'Project Alignment', value: '98% Score' }
+      ]
+    },
+    {
+      id: 8,
+      tag: 'Foreign Languages',
+      title: 'Global Document Translation & Localization',
+      client: 'International Law Firm',
+      challenge: 'Slow turnaround times and errors in multilingual legal contracts.',
+      solution: 'Deployed professional translation systems and localized cloud document software.',
+      impacts: [
+        { label: 'Languages Active', value: '12+ Types' },
+        { label: 'Contract Turn', value: '5x Faster' },
+        { label: 'Translation Acc.', value: '99.8%' }
       ]
     }
   ];
@@ -136,12 +255,12 @@ export default function CaseStudies() {
           }}
           className="horizontal-intro-slide"
         >
-          <span className="section-tag" style={{ textAlign: 'left' }}>Case Studies</span>
-          <h2 className="section-title text-gradient" style={{ textAlign: 'left', fontSize: '3.2rem', lineHeight: '1.1', margin: 0 }}>
-            Proven Impact.
+          <span className="section-tag" style={{ textAlign: 'left' }}>Collaborations</span>
+          <h2 className="section-title text-gradient" style={{ textAlign: 'left', fontSize: '2.5rem', lineHeight: '1.2', margin: 0 }}>
+            Empowering People & Businesses
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.6' }}>
-            Explore how we assist Fortune 500 corporations in executing complex cloud structures, upskilling operations, and implementing cognitive frameworks.
+            Collaborations with industries globally to build connected, adaptive, and future-ready ecosystems.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--brand-crimson)', fontSize: '0.9rem', fontWeight: 600 }}>
             <span>Scroll vertically to slide</span>
@@ -174,7 +293,7 @@ export default function CaseStudies() {
                 <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brand-orange)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{c.tag}</span>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.client}</span>
               </div>
-              <h3 style={{ fontSize: '2rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '-0.02em', marginTop: '0.5rem' }}>{c.title}</h3>
+              <h3 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '-0.02em', marginTop: '0.5rem' }}>{c.title}</h3>
             </div>
 
             {/* Middle Row: Content */}
@@ -189,27 +308,55 @@ export default function CaseStudies() {
               </div>
             </div>
 
-            {/* Bottom Row: Metrics Grid */}
+            {/* Bottom Row: Metrics Grid & CTA */}
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '1.5rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 borderTop: '1px solid rgba(0, 0, 0, 0.06)',
-                paddingTop: '2rem'
+                paddingTop: '2rem',
+                gap: '2rem'
               }}
-              className="case-metrics-grid"
+              className="case-metrics-footer"
             >
-              {c.impacts.map((metric, idx) => (
-                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                  <span className="text-gradient" style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>
-                    {metric.value}
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    {metric.label}
-                  </span>
-                </div>
-              ))}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '1.5rem',
+                  flex: 1
+                }}
+                className="case-metrics-grid"
+              >
+                {c.impacts.map((metric, idx) => (
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <span className="text-gradient" style={{ fontSize: '1.3rem', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>
+                      <MetricCounter value={metric.value} />
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {metric.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <a
+                href="#"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  color: 'var(--brand-crimson)',
+                  textDecoration: 'none',
+                  flexShrink: 0
+                }}
+              >
+                <span>Read More</span>
+                <ArrowRight size={15} />
+              </a>
             </div>
           </div>
         ))}
@@ -253,9 +400,15 @@ export default function CaseStudies() {
             grid-template-columns: 1fr !important;
             gap: 1.5rem !important;
           }
+          .case-metrics-footer {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.5rem !important;
+          }
           .case-metrics-grid {
             grid-template-columns: 1fr !important;
             gap: 1.25rem !important;
+            width: 100%;
           }
         }
       `}</style>

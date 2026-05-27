@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import { Calendar, Award, Globe, Shield, Cloud, BrainCircuit, Rocket } from 'lucide-react';
+import { Calendar, Award, Globe, Shield, Cloud, BrainCircuit, BookOpen, Scale, Briefcase, Cpu, Network } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,52 +12,94 @@ export default function Timeline() {
   const milestones = [
     {
       year: '1998',
-      title: 'Foundation & Roots',
-      desc: 'Established in Pune, India, serving national tech sectors with corporate learning ecosystems.',
+      title: 'Inception of Vinsys',
+      desc: 'Established corporate training operations in Pune, India, building foundation skills for emerging tech industries.',
       icon: <Calendar size={18} />,
       color: 'var(--brand-crimson)'
     },
     {
-      year: '2004',
-      title: 'International Presence',
-      desc: 'Expanded corporate delivery systems overseas, establishing a regional headquarters in Dubai, UAE.',
-      icon: <Globe size={18} />,
+      year: '2003',
+      title: 'Software & Support Operations',
+      desc: 'Broadened horizons into custom software development, IT support, and enterprise software consultations.',
+      icon: <Cpu size={18} />,
       color: 'var(--brand-orange)'
     },
     {
-      year: '2010',
-      title: 'Digital Enterprise Core',
-      desc: 'Pivoted core competencies to digital systems consulting and enterprise-wide transformation.',
-      icon: <Award size={18} />,
+      year: '2004',
+      title: 'UAE Regional Head Office',
+      desc: 'Established international headquarters in Dubai, UAE to drive corporate training across Middle East networks.',
+      icon: <Globe size={18} />,
       color: 'var(--brand-amber)'
     },
     {
-      year: '2016',
-      title: 'Security Compliance',
-      desc: 'Achieved ISO certification milestones, deploying worldwide corporate defense frameworks.',
-      icon: <Shield size={18} />,
+      year: '2005',
+      title: 'Corporate Presence in USA',
+      desc: 'Setup local entity and corporate offices in USA to capture global training and resourcing requirements.',
+      icon: <Briefcase size={18} />,
+      color: 'var(--brand-orange)'
+    },
+    {
+      year: '2007',
+      title: 'ISO 9001:2000 Certification',
+      desc: 'Earned quality management credentials for IT training, digital systems, and infrastructure processes.',
+      icon: <Award size={18} />,
       color: 'var(--brand-crimson)'
     },
     {
-      year: '2020',
-      title: 'Cloud Scaling Phase',
-      desc: 'Upskilled over 200,000 corporate developers globally in Kubernetes, AWS, and serverless arrays.',
+      year: '2009',
+      title: 'Language Services Launch',
+      desc: 'Formed a dedicated foreign language translation and localization services division to enable global teams.',
+      icon: <BookOpen size={18} />,
+      color: 'var(--brand-orange)'
+    },
+    {
+      year: '2011',
+      title: 'Elite Training Hub in Pune',
+      desc: 'Launched a state-of-the-art corporate upskilling facility in Shivajinagar, Pune, supporting hundreds of experts.',
+      icon: <Network size={18} />,
+      color: 'var(--brand-amber)'
+    },
+    {
+      year: '2013',
+      title: 'Custom Digital Learning Platform',
+      desc: 'Launched custom e-learning content delivery frameworks and modern enterprise LMS portal solutions.',
       icon: <Cloud size={18} />,
       color: 'var(--brand-orange)'
     },
     {
-      year: '2024',
-      title: 'Cognitive Orchestration',
-      desc: 'Launched Vinsys Cognitive Advisory, deploying custom RAG tools and prompt coaching portals.',
-      icon: <BrainCircuit size={18} />,
+      year: '2015',
+      title: 'Government Upskilling Alliances',
+      desc: 'Acquired high-profile government agency partnerships for multi-year national workforce upskilling projects.',
+      icon: <Scale size={18} />,
+      color: 'var(--brand-crimson)'
+    },
+    {
+      year: '2016',
+      title: 'ISO 27001 Security Standard',
+      desc: 'Achieved ISO 27001:2013 security certification, establishing robust data security management systems.',
+      icon: <Shield size={18} />,
+      color: 'var(--brand-orange)'
+    },
+    {
+      year: '2017',
+      title: 'Managed IT Infrastructure',
+      desc: 'Expanded managed services division, offering 24/7 security operations (SOC) and server networks support.',
+      icon: <Cpu size={18} />,
       color: 'var(--brand-amber)'
     },
     {
-      year: 'Present',
-      title: 'Global Ecosystem',
-      desc: 'Operating as a full enterprise transformation partner across 50+ nations for Fortune 500 boards.',
-      icon: <Rocket size={18} />,
+      year: '2022',
+      title: 'SME Trainer Network Expansion',
+      desc: 'Scaled active trainer networks to over 1,000+ certified subject matter experts across five continents.',
+      icon: <BrainCircuit size={18} />,
       color: 'var(--brand-orange)'
+    },
+    {
+      year: '2023',
+      title: 'Public Listing on NSE Emerge',
+      desc: 'Successfully listed as Vinsys IT Services India Limited on NSE Emerge, celebrating 25+ years of legacy.',
+      icon: <Award size={18} />,
+      color: 'var(--brand-crimson)'
     }
   ];
 
@@ -127,9 +169,9 @@ export default function Timeline() {
         {/* Section Header */}
         <div className="section-header">
           <span className="section-tag">Corporate Journey</span>
-          <h2 className="section-title text-gradient">Chronology of Innovation</h2>
+          <h2 className="section-title text-gradient">Our Journey</h2>
           <p className="section-desc">
-            Tracing our expansion from a local upskilling provider to an integrated global enterprise transformation leader.
+            Tracing our expansion from a local upskilling provider to an NSE-listed global enterprise transformation leader.
           </p>
         </div>
 

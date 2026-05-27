@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import HeroCanvas from './HeroCanvas';
 import { ArrowRight, Play } from 'lucide-react';
 import useInView from '../hooks/useInView';
 
-export default function Hero() {
+export default function Hero({ onEnquireClick }) {
   const [containerRef, isInView] = useInView();
   const titleRef = useRef(null);
   const badgeRef = useRef(null);
@@ -12,6 +12,42 @@ export default function Hero() {
   const btnGroupRef = useRef(null);
   const statsRef = useRef(null);
   const cursorPosition = useRef({ x: 0, y: 0 });
+
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const wordRef = useRef(null);
+  const rotatingWords = [
+    'Innovative Solution',
+    'Possibilities',
+    'Technologies',
+    'Technologies for Tomorrow'
+  ];
+
+  useEffect(() => {
+    const wordInterval = setInterval(() => {
+      // Animate out current word
+      if (wordRef.current) {
+        gsap.to(wordRef.current, {
+          opacity: 0,
+          y: -20,
+          filter: 'blur(8px)',
+          duration: 0.35,
+          ease: 'power2.in',
+          onComplete: () => {
+            setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
+            // Animate in new word
+            if (wordRef.current) {
+              gsap.fromTo(wordRef.current,
+                { opacity: 0, y: 25, filter: 'blur(8px)' },
+                { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power3.out' }
+              );
+            }
+          }
+        });
+      }
+    }, 3200);
+    return () => clearInterval(wordInterval);
+  }, []);
+
 
   // Parallax cursor tracker for 3D canvas
   const handleMouseMove = (e) => {
@@ -27,31 +63,31 @@ export default function Hero() {
   useEffect(() => {
     // GSAP staggered loading animations
     const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-    
-    tl.fromTo(badgeRef.current, 
+
+    tl.fromTo(badgeRef.current,
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.8, delay: 0.2 }
     );
-    
-    tl.fromTo(titleRef.current, 
+
+    tl.fromTo(titleRef.current,
       { opacity: 0, y: 30, filter: 'blur(10px)' },
       { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2 },
       '-=0.6'
     );
-    
-    tl.fromTo(descRef.current, 
+
+    tl.fromTo(descRef.current,
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 1.0 },
       '-=0.8'
     );
-    
-    tl.fromTo(btnGroupRef.current, 
+
+    tl.fromTo(btnGroupRef.current,
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.8 },
       '-=0.8'
     );
 
-    tl.fromTo(statsRef.current.children, 
+    tl.fromTo(statsRef.current.children,
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.8, stagger: 0.15 },
       '-=0.6'
@@ -61,10 +97,10 @@ export default function Hero() {
     const counters = document.querySelectorAll('.stat-number');
     counters.forEach(counter => {
       const target = parseInt(counter.getAttribute('data-target'), 10);
-      const isYears = counter.textContent.includes('Yr');
-      const suffix = isYears ? ' Yr' : '+';
+      const isYears = counter.textContent.includes('Yr') || counter.textContent.includes('Decades');
+      const suffix = isYears ? ' Decades' : '+';
       const obj = { val: 0 };
-      
+
       gsap.to(obj, {
         val: target,
         duration: 2.5,
@@ -87,7 +123,7 @@ export default function Hero() {
     { number: '0+', target: 50, label: 'Countries Served' },
     { number: '0+', target: 5000, label: 'Enterprise Clients' },
     { number: '0M+', target: 1000000, label: 'Professionals Upskilled' },
-    { number: '0 Yr', target: 25, label: 'Global Experience' }
+    { number: '0 Yr', target: 2, label: 'Global Experience' }
   ];
 
   return (
@@ -110,7 +146,7 @@ export default function Hero() {
       {isInView && <HeroCanvas cursorPosition={cursorPosition} />}
 
       {/* Grid background structure */}
-      <div 
+      <div
         style={{
           position: 'absolute',
           top: 0,
@@ -121,7 +157,7 @@ export default function Hero() {
           backgroundSize: '32px 32px',
           pointerEvents: 'none',
           opacity: 0.7
-        }} 
+        }}
       />
 
       {/* Decorative colored glow lights */}
@@ -150,7 +186,7 @@ export default function Hero() {
           </span>
         </div>
 
-        {/* Cinematic Header Text */}
+        {/* Cinematic Header Text with Rotating Words */}
         <h1
           ref={titleRef}
           style={{
@@ -160,10 +196,25 @@ export default function Hero() {
             letterSpacing: '-0.03em',
             maxWidth: '1000px',
             margin: '0 auto 1.5rem auto',
+            minHeight: '180px', // Prevent height shifts
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
           className="text-gradient"
         >
-          Scaling Enterprise Intelligence & Technology Capabilities
+          <span>Scaling Enterprise</span>
+          <span
+            ref={wordRef}
+            style={{
+              color: 'var(--brand-crimson)',
+              display: 'inline-block',
+              margin: '0.3rem 0',
+            }}
+          >
+            {rotatingWords[currentWordIndex]}
+          </span>
         </h1>
 
         {/* Lead subtext */}
@@ -177,7 +228,7 @@ export default function Hero() {
             lineHeight: 1.6,
           }}
         >
-          Vinsys orchestrates digital infrastructure, corporate talent networks, cybersecurity defense systems, and AI readiness to accelerate global enterprise growth.
+          Delivering smart, future-ready solutions that drive innovation, sustainability, and lasting global impact.
         </p>
 
         {/* CTA Buttons */}
@@ -192,14 +243,18 @@ export default function Hero() {
             marginBottom: '6rem'
           }}
         >
-          <a href="#solutions" className="btn-primary">
-            <span>Explore Solutions</span>
+          <a href="#about" className="btn-primary">
+            <span>Know More About Us</span>
             <ArrowRight size={16} />
           </a>
-          <a href="#case-studies" className="btn-secondary">
-            <span>Analyze Case Studies</span>
-            <Play size={14} style={{ fill: 'var(--brand-crimson)' }} />
-          </a>
+          <button
+            onClick={onEnquireClick}
+            className="btn-secondary"
+            style={{ border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', background: '#fff' }}
+          >
+            <span>Enquire Now</span>
+            <Play size={14} style={{ fill: 'var(--brand-crimson)', color: 'var(--brand-crimson)' }} />
+          </button>
         </div>
 
         {/* Quick statistics row */}
