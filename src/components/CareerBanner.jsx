@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { ArrowRight, Briefcase } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -91,7 +92,10 @@ export default function CareerBanner({ onEnquire }) {
               </span>
             </div>
 
-            <h2
+            <TypographyReveal
+              tag="h2"
+              text="Your Gateway to Professional Excellence!"
+              animationType="reveal"
               style={{
                 fontSize: 'calc(1.8rem + 1vw)',
                 fontFamily: 'var(--font-heading)',
@@ -101,9 +105,7 @@ export default function CareerBanner({ onEnquire }) {
                 letterSpacing: '-0.02em',
                 margin: 0,
               }}
-            >
-              Your Gateway to Professional Excellence!
-            </h2>
+            />
 
             <p
               style={{

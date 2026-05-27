@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { ShieldCheck, Leaf, HeartPulse, Sparkles, GraduationCap, Landmark, Trophy, HelpCircle } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -113,7 +114,12 @@ export default function CSRInitiatives() {
         {/* Section Header */}
         <div className="section-header" ref={headerRef} style={{ marginBottom: '4rem', textAlign: 'center' }}>
           <span className="section-tag">Social Responsibility</span>
-          <h2 className="section-title text-gradient">Our Initiatives</h2>
+          <TypographyReveal
+            tag="h2"
+            text="Our Initiatives"
+            animationType="mask"
+            className="section-title text-gradient"
+          />
           <p className="section-desc" style={{ maxWidth: '720px', margin: '0 auto' }}>
             Our ambitions foster creativeness, help improve communities' quality of life, and provide lasting results by implementing relevant projects and partnerships.
           </p>

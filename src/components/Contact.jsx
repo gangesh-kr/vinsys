@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Mail, Phone, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -68,7 +69,12 @@ export default function Contact() {
         {/* Section Header */}
         <div className="section-header" ref={headerRef}>
           <span className="section-tag">Connect Hub</span>
-          <h2 className="section-title text-gradient">Initiate Transformation</h2>
+          <TypographyReveal
+            tag="h2"
+            text="Initiate Transformation"
+            animationType="tracking"
+            className="section-title text-gradient"
+          />
           <p className="section-desc">
             Consult with our global architects to plan, design, and execute your workforce or infrastructure roadmap.
           </p>

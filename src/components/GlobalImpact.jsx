@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Globe, MapPin, Award, Users } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,6 +71,199 @@ function MetricCounter({ value }) {
   }, [value]);
   
   return <span ref={elementRef}>{displayValue}</span>;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TACTILE DRAGGABLE & SNAPPING Horizontal Partner Cards Loop
+───────────────────────────────────────────────────────────────── */
+function PartnerCard({ name }) {
+  const cardRef = useRef(null);
+  
+  const onMouseMove = (e) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    
+    // Smooth 3D Perspective tilt logic
+    const rx = ((x / r.width) - 0.5) * 18;
+    const ry = ((y / r.height) - 0.5) * -18;
+    
+    el.style.transform = `perspective(600px) rotateX(${ry}deg) rotateY(${rx}deg) translateY(-2px) scale(1.05)`;
+    el.style.borderColor = 'rgba(246, 147, 32, 0.4)';
+    el.style.background = 'rgba(255, 255, 255, 0.98)';
+    el.style.boxShadow = '0 12px 28px rgba(246, 147, 32, 0.12), inset 0 1px 0 rgba(255,255,255,0.08)';
+  };
+  
+  const onMouseLeave = () => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg) scale(1)';
+    el.style.borderColor = 'rgba(0, 0, 0, 0.06)';
+    el.style.background = 'rgba(255, 255, 255, 0.85)';
+    el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.04)';
+  };
+  
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0.82rem 1.8rem',
+        borderRadius: '14px',
+        background: 'rgba(255, 255, 255, 0.85)',
+        border: '1px solid rgba(0, 0, 0, 0.06)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        minWidth: '160px',
+        height: '56px',
+        cursor: 'grab',
+        userSelect: 'none',
+        fontFamily: 'var(--font-heading, sans-serif)',
+        fontSize: '0.88rem',
+        fontWeight: 650,
+        color: 'var(--text-secondary)',
+        transition: 'transform 0.28s cubic-bezier(0.16,1,0.3,1), border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease',
+        transformStyle: 'preserve-3d',
+        margin: '0 0.6rem',
+      }}
+    >
+      <span>{name}</span>
+    </div>
+  );
+}
+
+function PartnerMarquee({ partners }) {
+  const containerRef = useRef(null);
+  const trackRef = useRef(null);
+  
+  const scrollX = useRef(0);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const prevScrollX = useRef(0);
+  const velocity = useRef(0.9); // baseline pixel slide speed per tick
+  const dragVelocity = useRef(0);
+  const lastTime = useRef(0);
+  const lastDragX = useRef(0);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    
+    let lastScrollY = window.scrollY;
+    
+    const tick = () => {
+      // Calculate Scroll Y velocity manually (difference between frames)
+      const currentScrollY = window.scrollY;
+      const vScrollVel = Math.abs(currentScrollY - lastScrollY);
+      lastScrollY = currentScrollY;
+
+      const speedBump = Math.min(5.5, vScrollVel * 0.12);
+      
+      let speed = velocity.current + speedBump;
+      
+      if (isDown.current) {
+        dragVelocity.current *= 0.85; // Drag friction
+      } else {
+        if (Math.abs(dragVelocity.current) > 0.08) {
+          scrollX.current += dragVelocity.current;
+          dragVelocity.current *= 0.94; // Momentum decay
+        } else {
+          scrollX.current -= speed;
+        }
+      }
+      
+      const width = track.scrollWidth / 2; // Midpoint of duplicated items
+      
+      if (scrollX.current <= -width) {
+        scrollX.current = 0;
+      } else if (scrollX.current > 0) {
+        scrollX.current = -width + 1;
+      }
+      
+      gsap.set(track, { x: scrollX.current });
+    };
+    
+    gsap.ticker.add(tick);
+    
+    return () => {
+      gsap.ticker.remove(tick);
+    };
+  }, []);
+
+  const handleMouseDown = (e) => {
+    isDown.current = true;
+    startX.current = e.pageX || e.touches[0].pageX;
+    prevScrollX.current = scrollX.current;
+    lastDragX.current = startX.current;
+    lastTime.current = Date.now();
+    dragVelocity.current = 0;
+    if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDown.current) return;
+    const x = e.pageX || e.touches[0].pageX;
+    const deltaX = x - startX.current;
+    scrollX.current = prevScrollX.current + deltaX;
+    
+    const now = Date.now();
+    const dt = now - lastTime.current;
+    if (dt > 0) {
+      dragVelocity.current = (x - lastDragX.current) / (dt * 0.05); // dynamic momentum scale
+    }
+    lastDragX.current = x;
+    lastTime.current = now;
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    if (trackRef.current) trackRef.current.style.cursor = 'grab';
+  };
+
+  const duplicatedPartners = [...partners, ...partners];
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleMouseDown}
+      onTouchMove={handleMouseMove}
+      onTouchEnd={handleMouseUp}
+      style={{
+        width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        padding: '0.8rem 0',
+        cursor: 'grab',
+      }}
+    >
+      {/* Edge Glow Blur Overlays */}
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(90deg, #f7f7f7 10%, transparent)', zIndex: 10, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '100px', background: 'linear-gradient(270deg, #f7f7f7 10%, transparent)', zIndex: 10, pointerEvents: 'none' }} />
+      
+      <div
+        ref={trackRef}
+        style={{
+          display: 'flex',
+          whiteSpace: 'nowrap',
+          width: 'max-content',
+        }}
+      >
+        {duplicatedPartners.map((p, i) => (
+          <PartnerCard key={i} name={p} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function GlobalImpact() {
@@ -159,7 +353,12 @@ export default function GlobalImpact() {
         {/* Section Header */}
         <div className="section-header" ref={headerRef}>
           <span className="section-tag">Global Impact</span>
-          <h2 className="section-title text-gradient">World-Class Footprint</h2>
+          <TypographyReveal
+            tag="h2"
+            text="World-Class Footprint"
+            animationType="skew"
+            className="section-title text-gradient"
+          />
           <p className="section-desc">
             Vinsys operates a distributed network of training and technology centers, serving multi-national corporations across five continents.
           </p>
@@ -370,43 +569,12 @@ export default function GlobalImpact() {
 
         </div>
 
-        {/* Scrolling Partner Logo Wall */}
-        <div style={{ position: 'relative', width: '100%', overflow: 'hidden', padding: '2rem 0', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-          <h3 style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '2rem' }}>
+        {/* Scrolling Partner Logo Wall (Tactile Drag & Snapping Marquee loop) */}
+        <div style={{ position: 'relative', width: '100%', overflow: 'hidden', padding: '2.5rem 0 1rem 0', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+          <h3 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '2.2rem' }}>
             Trusted by Elite Technology & Learning Partners
           </h3>
-          <div style={{ display: 'flex', width: '200%' }} className="marquee-wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide">
-              {partners.slice(0, 11).map((p, i) => (
-                <span key={`p1-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  {p}
-                </span>
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide">
-              {partners.slice(0, 11).map((p, i) => (
-                <span key={`p2-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  {p}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div style={{ display: 'flex', width: '200%', marginTop: '1.5rem' }} className="marquee-wrapper-reverse">
-            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide-reverse">
-              {partners.slice(11).map((p, i) => (
-                <span key={`p3-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  {p}
-                </span>
-              ))}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-around', width: '50%', flexShrink: 0 }} className="marquee-slide-reverse">
-              {partners.slice(11).map((p, i) => (
-                <span key={`p4-${i}`} style={{ fontSize: '1.05rem', fontFamily: 'var(--font-heading)', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  {p}
-                </span>
-              ))}
-            </div>
-          </div>
+          <PartnerMarquee partners={partners} />
         </div>
 
       </div>
@@ -422,23 +590,6 @@ export default function GlobalImpact() {
             opacity: 0;
           }
         }
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100%); }
-        }
-        @keyframes marqueeReverse {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(0); }
-        }
-        .marquee-wrapper {
-          overflow: hidden;
-        }
-        .marquee-slide {
-          animation: marquee 25s linear infinite;
-        }
-        .marquee-slide-reverse {
-          animation: marqueeReverse 25s linear infinite;
-        }
         @media (max-width: 992px) {
           .impact-grid {
             grid-template-columns: 1fr !important;
@@ -448,10 +599,6 @@ export default function GlobalImpact() {
         @media (max-width: 576px) {
           .highlight-grid {
             grid-template-columns: 1fr !important;
-          }
-          .marquee-slide span, .marquee-slide-reverse span {
-            font-size: 0.9rem !important;
-            margin: 0 1rem;
           }
         }
       `}</style>

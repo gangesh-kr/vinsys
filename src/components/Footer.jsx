@@ -8,7 +8,7 @@ export default function Footer({ onEnquireClick }) {
   return (
     <footer
       style={{
-        background: 'linear-gradient(180deg, #ffffff 0%, #1a1a1a 20%, #141414 100%)',
+        background: '#141414',
         borderTop: '1px solid rgba(0, 0, 0, 0.06)',
         padding: '6rem 0 3rem 0',
         position: 'relative',
@@ -16,6 +16,41 @@ export default function Footer({ onEnquireClick }) {
         overflow: 'hidden'
       }}
     >
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          pointerEvents: 'none',
+          zIndex: 0,
+          opacity: 0.35
+        }}
+      >
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260514_102933_4e8f73b5-775a-4179-b2fb-472f59063dcd.mp4" type="video/mp4" />
+      </video>
+
+      {/* Gradient Overlay to transition from white top edge to dark background, and ensure text contrast */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(180deg, #ffffff 0%, rgba(26, 26, 26, 0.8) 18%, rgba(20, 20, 20, 0.85) 100%)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+      />
+
       {/* Decorative Glow Grid */}
       <div 
         className="glow-bg glow-purple" 
@@ -24,7 +59,8 @@ export default function Footer({ onEnquireClick }) {
           height: '500px', 
           bottom: '-250px', 
           left: '10%',
-          opacity: 0.05 
+          opacity: 0.05,
+          zIndex: 2
         }} 
       />
       <div 
@@ -34,11 +70,12 @@ export default function Footer({ onEnquireClick }) {
           height: '500px', 
           bottom: '-250px', 
           right: '10%',
-          opacity: 0.05 
+          opacity: 0.05,
+          zIndex: 2
         }} 
       />
 
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 5 }}>
         {/* Footer Top Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr', gap: '4rem', marginBottom: '4rem' }} className="footer-grid">
           {/* Brand Info */}

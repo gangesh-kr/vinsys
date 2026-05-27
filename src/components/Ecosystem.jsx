@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Brain, Cpu, GraduationCap, Server, Landmark, Code, Users } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -125,7 +126,12 @@ export default function Ecosystem() {
         {/* Section Header */}
         <div className="section-header" ref={headerRef}>
           <span className="section-tag">Transformation Ecosystem</span>
-          <h2 className="section-title text-gradient">Our Group Services</h2>
+          <TypographyReveal
+            tag="h2"
+            text="Our Group Services"
+            animationType="mask"
+            className="section-title text-gradient"
+          />
           <p className="section-desc">
             Industry-relevant Diverse Range, Customized, Adaptable, Progressive & Economical.
           </p>

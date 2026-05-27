@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -16,12 +18,42 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import EnquireModal from './components/EnquireModal';
 
+gsap.registerPlugin(ScrollTrigger);
+
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const ctaRef = useRef(null);
 
   const triggerModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  // Initialize Lenis Smooth Scroll synced with GSAP ticker
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // premium expo-out
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.2,
+      infinite: false,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    const rafHandler = (time) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(rafHandler);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove(rafHandler);
+    };
+  }, []);
 
   useEffect(() => {
     const btn = ctaRef.current;

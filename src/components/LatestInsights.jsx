@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { Calendar, ArrowUpRight } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -86,7 +87,12 @@ export default function LatestInsights() {
         {/* Section Header */}
         <div className="section-header" ref={headerRef} style={{ marginBottom: '4.5rem', textAlign: 'center' }}>
           <span className="section-tag">Press & Updates</span>
-          <h2 className="section-title text-gradient">Latest Insights</h2>
+          <TypographyReveal
+            tag="h2"
+            text="Latest Insights"
+            animationType="skew"
+            className="section-title text-gradient"
+          />
           <p className="section-desc" style={{ maxWidth: '600px', margin: '0 auto' }}>
             Stay updated with our latest press releases, strategic alliances, and expansion milestones globally.
           </p>

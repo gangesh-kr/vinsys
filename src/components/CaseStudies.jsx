@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import { ArrowRight, ChevronRight, Milestone } from 'lucide-react';
+import { ArrowRight, ChevronRight } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -74,51 +75,8 @@ function MetricCounter({ value }) {
 
 export default function CaseStudies() {
   const triggerRef = useRef(null);
+  const sectionRef = useRef(null);
   const scrollRef = useRef(null);
-
-  useEffect(() => {
-    // Only apply horizontal scroll pinning on screens wider than tablet (768px)
-    const mediaQuery = window.matchMedia('(min-width: 769px)');
-    
-    let scrollTween;
-
-    const initScrollTrigger = () => {
-      if (!scrollRef.current || !triggerRef.current) return;
-
-      const totalScrollWidth = scrollRef.current.scrollWidth;
-      const viewWidth = window.innerWidth;
-      const horizontalDistance = totalScrollWidth - viewWidth;
-
-      if (horizontalDistance > 0) {
-        scrollTween = gsap.to(scrollRef.current, {
-          x: -horizontalDistance,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: triggerRef.current,
-            pin: true,
-            scrub: 1,
-            start: 'top top',
-            end: () => `+=${horizontalDistance}`,
-            invalidateOnRefresh: true,
-          }
-        });
-      }
-    };
-
-    if (mediaQuery.matches) {
-      // Small timeout to ensure DOM layout is fully rendered before calculations
-      const timer = setTimeout(initScrollTrigger, 100);
-      return () => {
-        clearTimeout(timer);
-        if (scrollTween) {
-          scrollTween.scrollTrigger?.kill(true);
-          scrollTween.kill();
-        }
-      };
-    }
-
-    return undefined;
-  }, []);
 
   const cases = [
     {
@@ -227,191 +185,332 @@ export default function CaseStudies() {
     }
   ];
 
-  return (
-    <div ref={triggerRef} style={{ background: '#ffffff' }} id="case-studies">
-      
-      {/* Scroll Pin Wrapper */}
-      <div
-        ref={scrollRef}
-        style={{
-          display: 'flex',
-          height: '100vh',
-          width: 'max-content',
-          alignItems: 'center',
-          padding: '0 4rem',
-          boxSizing: 'border-box'
-        }}
-        className="horizontal-scroll-container"
-      >
-        {/* Intro Slide */}
-        <div
-          style={{
-            width: '460px',
-            marginRight: '6rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-            flexShrink: 0
-          }}
-          className="horizontal-intro-slide"
-        >
-          <span className="section-tag" style={{ textAlign: 'left' }}>Collaborations</span>
-          <h2 className="section-title text-gradient" style={{ textAlign: 'left', fontSize: '2.5rem', lineHeight: '1.2', margin: 0 }}>
-            Empowering People & Businesses
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.6' }}>
-            Collaborations with industries globally to build connected, adaptive, and future-ready ecosystems.
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--brand-crimson)', fontSize: '0.9rem', fontWeight: 600 }}>
-            <span>Scroll vertically to slide</span>
-            <ChevronRight size={16} style={{ animation: 'bounceX 1.5s infinite' }} />
-          </div>
-        </div>
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    const scroll = scrollRef.current;
+    const section = sectionRef.current;
+    if (!trigger || !scroll || !section) return;
 
-        {/* Case Studies Cards */}
-        {cases.map((c) => (
+    const cards = scroll.querySelectorAll('.case-card');
+    const mm = gsap.matchMedia();
+
+    mm.add('(min-width: 960px)', () => {
+      // 1. Create the main horizontal scroll tween
+      const scrollTween = gsap.to(scroll, {
+        x: () => -(scroll.scrollWidth - window.innerWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          pin: true,
+          scrub: 1,
+          start: 'top top',
+          end: () => `+=${(scroll.scrollWidth - window.innerWidth) * 2.2}`, // 2.2x vertical scroll distance for slower, premium feel
+          invalidateOnRefresh: true,
+          anticipatePin: 1
+        }
+      });
+
+      // 2. Cinematic Card Reveals: Bind entrance animation directly to viewport entry via containerAnimation
+      cards.forEach((card) => {
+        gsap.fromTo(card,
+          { opacity: 0, y: 40, scale: 0.95, rotateY: 8, transformOrigin: 'center center' },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotateY: 0,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: card,
+              containerAnimation: scrollTween,
+              start: 'left 92%', // starts revealing just as it enters from the right
+              end: 'left 55%',   // fully revealed before reaching center stage
+              scrub: true
+            }
+          }
+        );
+      });
+    });
+
+    return () => mm.revert();
+  }, []);
+
+  return (
+    <div ref={triggerRef} style={{ width: '100%' }}>
+      {/* ── Desktop Pinned Section ── */}
+      <section
+        ref={sectionRef}
+        style={{
+          height: '100vh',
+          background: '#ffffff',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%'
+        }}
+        id="case-studies"
+        className="case-studies-desktop-section"
+      >
+        {/* Soft atmospheric background glow */}
+        <div className="glow-bg glow-cyan" style={{ width: '500px', height: '500px', top: '50%', left: '10%', transform: 'translateY(-50%)', opacity: 0.03 }} />
+
+        {/* Horizontal Moving Scroll Track */}
+        <div
+          ref={scrollRef}
+          style={{
+            display: 'flex',
+            height: '100%',
+            width: 'max-content',
+            alignItems: 'center',
+            paddingLeft: '10vw',
+            paddingRight: '15vw',
+            position: 'relative',
+            willChange: 'transform'
+          }}
+          className="horizontal-scroll-container"
+        >
+          {/* Intro Slide */}
           <div
-            key={c.id}
-            className="glass-panel case-card"
             style={{
-              width: '680px',
-              height: '80%',
-              maxHeight: '620px',
-              padding: '3rem',
-              marginRight: '4rem',
+              width: '460px',
+              marginRight: '6rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              position: 'relative',
-              flexShrink: 0,
-              background: '#f7f7f7'
+              gap: '1.5rem',
+              flexShrink: 0
             }}
+            className="horizontal-intro-slide"
           >
-            {/* Top Row: Client Info & Tag */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--brand-orange)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{c.tag}</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.client}</span>
-              </div>
-              <h3 style={{ fontSize: '1.8rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '-0.02em', marginTop: '0.5rem' }}>{c.title}</h3>
-            </div>
-
-            {/* Middle Row: Content */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', margin: '2rem 0' }} className="case-content-grid">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>The Challenge</span>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{c.challenge}</p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>Our Execution</span>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{c.solution}</p>
-              </div>
-            </div>
-
-            {/* Bottom Row: Metrics Grid & CTA */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderTop: '1px solid rgba(0, 0, 0, 0.06)',
-                paddingTop: '2rem',
-                gap: '2rem'
-              }}
-              className="case-metrics-footer"
-            >
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '1.5rem',
-                  flex: 1
-                }}
-                className="case-metrics-grid"
-              >
-                {c.impacts.map((metric, idx) => (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <span className="text-gradient" style={{ fontSize: '1.3rem', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>
-                      <MetricCounter value={metric.value} />
-                    </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {metric.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <a
-                href="#"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  color: 'var(--brand-crimson)',
-                  textDecoration: 'none',
-                  flexShrink: 0
-                }}
-              >
-                <span>Read More</span>
-                <ArrowRight size={15} />
-              </a>
+            <span className="section-tag" style={{ textAlign: 'left', color: 'var(--brand-crimson)' }}>Collaborations</span>
+            <TypographyReveal
+              tag="h2"
+              text="Empowering People & Businesses"
+              animationType="skew"
+              className="section-title text-gradient"
+              style={{ textAlign: 'left', fontSize: '2.5rem', lineHeight: '1.2', margin: 0 }}
+            />
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.6' }}>
+              Collaborations with industries globally to build connected, adaptive, and future-ready ecosystems.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--brand-crimson)', fontSize: '0.9rem', fontWeight: 600 }}>
+              <span>Scroll vertically to slide</span>
+              <ChevronRight size={16} style={{ animation: 'bounceX 1.5s infinite' }} />
             </div>
           </div>
-        ))}
-      </div>
+
+          {/* Case Studies Cards */}
+          {cases.map((c) => (
+            <div
+              key={c.id}
+              className="glass-panel case-card"
+              style={{
+                width: '580px',
+                height: '60%',
+                maxHeight: '440px',
+                padding: '2.25rem 2.5rem',
+                marginRight: '3.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                position: 'relative',
+                flexShrink: 0,
+                background: '#f7f7f7',
+                borderRadius: '20px',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
+                boxShadow: '0 15px 40px rgba(0,0,0,0.02)',
+                transformStyle: 'preserve-3d',
+                cursor: 'pointer',
+                transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px) rotateX(1deg) rotateY(-1deg)';
+                e.currentTarget.style.borderColor = 'rgba(173, 51, 45, 0.3)';
+                e.currentTarget.style.boxShadow = '0 20px 45px rgba(173, 51, 45, 0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.05)';
+                e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.02)';
+              }}
+            >
+              {/* Top Row: Client Info & Tag */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--brand-orange)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{c.tag}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{c.client}</span>
+                </div>
+                <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '-0.02em', marginTop: '0.25rem', lineHeight: '1.3' }}>{c.title}</h3>
+              </div>
+
+              {/* Middle Row: Content */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', margin: '1.25rem 0' }} className="case-content-grid">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>The Challenge</span>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{c.challenge}</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>Our Execution</span>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{c.solution}</p>
+                </div>
+              </div>
+
+              {/* Bottom Row: Metrics Grid & CTA */}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+                  paddingTop: '1.25rem',
+                  gap: '1.5rem'
+                }}
+                className="case-metrics-footer"
+              >
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '1rem',
+                    flex: 1
+                  }}
+                  className="case-metrics-grid"
+                >
+                  {c.impacts.map((metric, idx) => (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                      <span className="text-gradient" style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'var(--font-heading)' }}>
+                        <MetricCounter value={metric.value} />
+                      </span>
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {metric.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <a
+                  href="#"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    color: 'var(--brand-crimson)',
+                    textDecoration: 'none',
+                    flexShrink: 0
+                  }}
+                >
+                  <span>Read More</span>
+                  <ArrowRight size={14} />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Mobile Vertical Backup Flow ── */}
+      <section
+        style={{
+          padding: '6rem 0',
+          background: '#ffffff',
+          display: 'none'
+        }}
+        className="case-studies-mobile-section"
+      >
+        <div className="container">
+          <div style={{ marginBottom: '3.5rem' }}>
+            <span className="section-tag" style={{ color: 'var(--brand-crimson)' }}>Collaborations</span>
+            <TypographyReveal
+              tag="h2"
+              text="Empowering People & Businesses"
+              animationType="skew"
+              className="section-title text-gradient"
+            />
+            <p className="section-desc">
+              Collaborations with industries globally to build connected, adaptive, and future-ready ecosystems.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {cases.map((c) => (
+              <div
+                key={`mob-case-${c.id}`}
+                className="glass-panel"
+                style={{
+                  padding: '2rem',
+                  background: '#f7f7f7',
+                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  borderRadius: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.5rem'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--brand-orange)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{c.tag}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{c.client}</span>
+                </div>
+                <h3 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', fontWeight: 600, margin: '0.5rem 0' }}>{c.title}</h3>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }} className="case-content-grid">
+                  <div>
+                    <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>The Challenge</span>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginTop: '0.25rem' }}>{c.challenge}</p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>Our Execution</span>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginTop: '0.25rem' }}>{c.solution}</p>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                    {c.impacts.map((metric, idx) => (
+                      <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                        <span className="text-gradient" style={{ fontSize: '1.1rem', fontWeight: 700 }}>{metric.value}</span>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{metric.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <a
+                    href="#"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: 'var(--brand-crimson)',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <span>Read More</span>
+                    <ArrowRight size={14} />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <style>{`
         @keyframes bounceX {
           0%, 100% { transform: translateX(0); }
           50% { transform: translateX(6px); }
         }
-        .case-card {
-          transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
-        }
-        .case-card:hover {
-          border-color: rgba(173, 51, 45, 0.3) !important;
-          box-shadow: 0 10px 40px rgba(173, 51, 45, 0.1);
-          transform: translateY(-4px);
-        }
-        @media (max-width: 768px) {
-          .horizontal-scroll-container {
-            display: flex !important;
-            flex-direction: column !important;
-            height: auto !important;
-            width: 100% !important;
-            padding: 6rem 1.5rem !important;
-          }
-          .horizontal-intro-slide {
-            width: 100% !important;
-            margin-right: 0 !important;
-            margin-bottom: 3rem !important;
-          }
-          .case-card {
-            width: 100% !important;
-            height: auto !important;
-            max-height: none !important;
-            margin-right: 0 !important;
-            margin-bottom: 2rem !important;
-            padding: 2rem !important;
-          }
-          .case-content-grid {
-            grid-template-columns: 1fr !important;
-            gap: 1.5rem !important;
-          }
-          .case-metrics-footer {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 1.5rem !important;
-          }
-          .case-metrics-grid {
-            grid-template-columns: 1fr !important;
-            gap: 1.25rem !important;
-            width: 100%;
-          }
+        .case-studies-desktop-section { display: flex !important; }
+        .case-studies-mobile-section  { display: none !important; }
+
+        @media (max-width: 960px) {
+          .case-studies-desktop-section { display: none !important; }
+          .case-studies-mobile-section  { display: block !important; }
         }
       `}</style>
     </div>
   );
 }
+

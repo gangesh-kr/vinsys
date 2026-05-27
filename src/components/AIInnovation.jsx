@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import NeuralCanvas from './NeuralCanvas';
 import { ArrowRight, Sparkles, BrainCircuit, Target, Network } from 'lucide-react';
+import TypographyReveal from './TypographyReveal';
 
 export default function AIInnovation() {
   const containerRef = useRef(null);
@@ -65,9 +66,13 @@ export default function AIInnovation() {
                 <Sparkles size={14} />
                 Cognitive Readiness
               </span>
-              <h2 className="section-title text-gradient-purple" style={{ textAlign: 'left', margin: 0 }}>
-                Building AI-Ready Organizations
-              </h2>
+              <TypographyReveal
+                tag="h2"
+                text="Building AI-Ready Organizations"
+                animationType="reveal"
+                className="section-title text-gradient-purple"
+                style={{ textAlign: 'left', margin: 0 }}
+              />
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.6', marginTop: '1rem' }}>
                 Technology alone is not a strategy. We construct the cognitive pipelines and upskill the engineering workforces required to thrive in an AI-first economy.
               </p>

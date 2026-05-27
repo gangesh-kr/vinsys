@@ -22,9 +22,25 @@ export default function Hero({ onEnquireClick }) {
     'Technologies for Tomorrow'
   ];
 
+  const isFirstRender = useRef(true);
+
+  // Animate in the new word after the state update has rendered
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (!wordRef.current) return;
+
+    gsap.fromTo(wordRef.current,
+      { opacity: 0, y: 25, filter: 'blur(8px)' },
+      { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power3.out' }
+    );
+  }, [currentWordIndex]);
+
+  // Interval to trigger animate out
   useEffect(() => {
     const wordInterval = setInterval(() => {
-      // Animate out current word
       if (wordRef.current) {
         gsap.to(wordRef.current, {
           opacity: 0,
@@ -34,13 +50,6 @@ export default function Hero({ onEnquireClick }) {
           ease: 'power2.in',
           onComplete: () => {
             setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
-            // Animate in new word
-            if (wordRef.current) {
-              gsap.fromTo(wordRef.current,
-                { opacity: 0, y: 25, filter: 'blur(8px)' },
-                { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5, ease: 'power3.out' }
-              );
-            }
           }
         });
       }
@@ -142,6 +151,43 @@ export default function Hero({ onEnquireClick }) {
       }}
       id="hero"
     >
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          pointerEvents: 'none',
+          zIndex: 0,
+          opacity: 0.8
+        }}
+      >
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260306_074215_04640ca7-042c-45d6-bb56-58b1e8a42489.mp4" type="video/mp4" />
+      </video>
+
+      {/* Video Overlay for Readability and Blend */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+      />
+
       {/* Grid background structure */}
       <div
         style={{
@@ -153,13 +199,14 @@ export default function Hero({ onEnquireClick }) {
           backgroundImage: 'radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
           pointerEvents: 'none',
-          opacity: 0.7
+          opacity: 0.6,
+          zIndex: 2
         }}
       />
 
       {/* Decorative colored glow lights */}
-      <div className="glow-bg glow-blue" style={{ width: '600px', height: '600px', top: '10%', left: '-10%' }} />
-      <div className="glow-bg glow-cyan" style={{ width: '600px', height: '600px', bottom: '10%', right: '-10%' }} />
+      <div className="glow-bg glow-blue" style={{ width: '600px', height: '600px', top: '10%', left: '-10%', zIndex: 2 }} />
+      <div className="glow-bg glow-cyan" style={{ width: '600px', height: '600px', bottom: '10%', right: '-10%', zIndex: 2 }} />
 
       <div className="container" style={{ position: 'relative', zIndex: 5, maxWidth: '1440px', margin: '0 auto', width: '100%', padding: '0 2rem', boxSizing: 'border-box' }}>
         <div className="hero-split-grid">
@@ -189,7 +236,7 @@ export default function Hero({ onEnquireClick }) {
             {/* Cinematic Header Text with Rotating Words */}
             <h1
               ref={titleRef}
-              className="hero-headline text-gradient"
+              className="hero-headline"
               style={{
                 fontSize: 'calc(1.8rem + 2.2vw)',
                 fontWeight: 700,
@@ -204,7 +251,7 @@ export default function Hero({ onEnquireClick }) {
                 margin: '0 auto 1.5rem auto'
               }}
             >
-              <span>Scaling Enterprise</span>
+              <span className="text-gradient">Scaling Enterprise</span>
               <span
                 ref={wordRef}
                 style={{

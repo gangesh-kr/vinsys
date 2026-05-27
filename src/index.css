@@ -298,7 +298,6 @@ a {
 section {
   will-change: auto;
 }
-
 /* Premium text selection */
 ::selection {
   background-color: rgba(173, 51, 45, 0.15);
@@ -320,3 +319,48 @@ section {
   opacity: 0.4;
 }
 
+/* Responsive adjustments for Timeline and Leadership */
+.timeline-desktop-section {
+  display: flex !important;
+}
+.timeline-mobile-section {
+  display: none !important;
+}
+
+@media (max-width: 960px) {
+  .timeline-desktop-section {
+    display: none !important;
+  }
+  .timeline-mobile-section {
+    display: block !important;
+  }
+  
+  /* Leadership Mobile Layout overrides */
+  .leadership-bento-grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    gap: 2rem !important;
+  }
+  .bento-cards-stack {
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+  .bento-cards-stack .bento-card {
+    position: relative !important;
+    inset: auto !important;
+    opacity: 1 !important;
+    transform: none !important;
+    height: auto !important;
+    min-height: auto !important;
+    z-index: 1 !important;
+    padding: 2rem !important;
+  }
+  .bento-card .mobile-quote {
+    display: block !important;
+  }
+  .bento-quote-panel {
+    display: none !important;
+  }
+}

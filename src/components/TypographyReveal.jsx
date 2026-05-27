@@ -30,7 +30,8 @@ export default function TypographyReveal({
     if (!container) return;
 
     const elements = container.querySelectorAll('.reveal-item');
-    if (elements.length === 0) return;
+    const needsElements = animationType === 'mask' || animationType === 'skew';
+    if (needsElements && elements.length === 0) return;
 
     const ctx = gsap.context(() => {
       // Different animation personalities for alternate sections
@@ -115,7 +116,7 @@ export default function TypographyReveal({
     }, container);
 
     return () => ctx.revert();
-  }, [animationType, delay, duration, stagger, scrollTriggerStart]);
+  }, [text, type, animationType, delay, duration, stagger, scrollTriggerStart]);
 
   return (
     <Tag
@@ -146,9 +147,7 @@ export default function TypographyReveal({
               className="reveal-item"
               style={{
                 display: 'inline-block',
-                whiteSpace: type === 'chars' ? 'pre' : 'normal',
-                transform: 'translateY(100%)',
-                opacity: 0
+                whiteSpace: type === 'chars' ? 'pre' : 'normal'
               }}
             >
               {item}
